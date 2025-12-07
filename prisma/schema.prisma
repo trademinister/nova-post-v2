@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id            String      @id @default(uuid())
+  shop          String
+  state         String
+  isOnline      Boolean     @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean     @default(false)
+  locale        String?
+  collaborator  Boolean?    @default(false)
+  emailVerified Boolean?    @default(false)
+  ffSettings    FFSettings?
+}
+
+model FFSettings {
+  id                        String             @id @default(uuid())
+  npLogin                   String?
+  npPassword                String?
+  npOrganization            String?
+  additionalOrganizationKey String?
+  isEnabled                 Boolean            @default(false)
+  type                      String             @default("default")
+  fulfillBy                 String             @default("locations")
+  orderRiskAssissemnt       Boolean            @default(false)
+  orderRiskLevels           String[]           @default(["HIGH"])
+  paymentMethods            FFPaymentMethods[]
+  locations                 FFLocations[]
+  collections               FFCollections[]
+  sessionId                 String?            @unique
+  session                   Session?           @relation(fields: [sessionId], references: [id])
+}
+
+model FFLocations {
+  id                   String      @id @default(uuid())
+  locationId           String
+  name                 String
+  address              String
+  destinationWarehouse String?
+  isActive             Boolean     @default(false)
+  ffSettingsId         String?
+  ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
+}
+
+model FFCollections {
+  id                   String      @id @default(uuid())
+  collectionId         String
+  name                 String
+  description          String?
+  destinationWarehouse String?
+  isActive             Boolean     @default(false)
+  ffSettingsId         String?
+  ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
+}
+
+model FFPaymentMethods {
+  id           String      @id @default(uuid())
+  name         String
+  statuses     String[]    @default([])
+  ffSettingsId String?
+  ffSettings   FFSettings? @relation(fields: [ffSettingsId], references: [id])
+}

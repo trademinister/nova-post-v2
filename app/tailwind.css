@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --width-793: 390px;
+  --height-1121: 1000px;
+  --max-height-720: 720px;
+  
+  --color-bg-hover: rgba(247, 247, 247, 1);
+  --color-bg-settings: rgb(228 228 228 / 75%);
+  --color-bg-settings-hover: rgb(189 189 189 / 75%);
+  --color-bg-active: rgba(0, 0, 0, .08);
+  
+  --color-border-text-field: #898f94;
+}
