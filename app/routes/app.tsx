@@ -1,10 +1,18 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { Outlet, useLoaderData, useRouteError } from "react-router";
+import {
+  Outlet,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+  useRouteError,
+} from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
 import tailwindStyles from "~/tailwind.css?url";
 import "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: tailwindStyles }];
 
@@ -17,12 +25,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function App() {
   const { apiKey } = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["global"]);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    shopify.loading(navigation.state === "loading");
+  }, [navigation.state]);
 
   return (
     <AppProvider embedded apiKey={apiKey}>
       <s-app-nav>
-        <s-link href="/app">Home</s-link>
-        <s-link href="/app/settings">Settings</s-link>
+        <s-link href="/app">{t("navigating.home")}</s-link>
+        <s-link href="/app/settings">{t("navigating.settings")}</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>

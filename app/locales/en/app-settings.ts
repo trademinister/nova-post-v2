@@ -4,6 +4,6 @@ export default {
   app_language_desc: "Choose the language used for the app interface.",
   languages: {
     en: "English",
-    de: "German",
+    ua: "Ukrainian",
   },
 };

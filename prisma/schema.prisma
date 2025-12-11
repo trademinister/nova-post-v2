@@ -33,7 +33,7 @@ model FFSettings {
   npOrganization            String?
   additionalOrganizationKey String?
   isEnabled                 Boolean            @default(false)
-  type                      String             @default("default")
+  processPaymentgMethod     Boolean            @default(false)
   fulfillBy                 String             @default("locations")
   orderRiskAssissemnt       Boolean            @default(false)
   orderRiskLevels           String[]           @default(["HIGH"])
@@ -51,6 +51,7 @@ model FFLocations {
   address              String
   destinationWarehouse String?
   isActive             Boolean     @default(false)
+  remainsIsActive      Boolean     @default(false)
   ffSettingsId         String?
   ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
 }
@@ -62,6 +63,7 @@ model FFCollections {
   description          String?
   destinationWarehouse String?
   isActive             Boolean     @default(false)
+  remainsIsActive      Boolean     @default(false)
   ffSettingsId         String?
   ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
 }

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import SvgIcons from "~/assets/icons/svgIcons";
 
 export default function AppSettings() {
-  const { t, i18n } = useTranslation(["appSettings", "navigation", "global"]);
+  const { t, i18n } = useTranslation(["appSettings", "global"]);
   const navigation = useNavigation();
 
   const submit = useSubmit();
@@ -32,9 +32,9 @@ export default function AppSettings() {
   } as const;
 
   return (
-    <s-page heading={t("page_title")}>
+    <s-page heading={t("global:navigating.app_settings")}>
       <s-link slot="breadcrumb-actions" href="/app/settings">
-        {t("navigation:settings")}
+        {t("global:navigating.settings")}
       </s-link>
       <s-box padding="base">
         <s-grid gridTemplateColumns="repeat(3, 1fr)" gap="base">

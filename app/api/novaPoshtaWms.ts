@@ -1,7 +1,8 @@
 import soap, { type Client } from "soap";
 
 const SANDBOX_URL = "https://api-nps.np.work/wms_test/ws/depositorExchane.1cws";
-const PRODUCTION_URL = "https://api-nps.np.work/wms_npl3/ws/depositorExchane.1cws";
+const PRODUCTION_URL =
+  "https://api-nps.np.work/wms_npl3/ws/depositorExchane.1cws";
 
 export default class NovaPoshtaWms {
   private login: string;
@@ -10,7 +11,12 @@ export default class NovaPoshtaWms {
   private sandbox: boolean;
   private client: Client | null = null;
 
-  constructor(login: string, password: string, organization: string, sandbox?: boolean) {
+  constructor(
+    login: string,
+    password: string,
+    organization: string,
+    sandbox?: boolean,
+  ) {
     this.login = login;
     this.password = password;
     this.organization = organization;
@@ -27,10 +33,10 @@ export default class NovaPoshtaWms {
     }
 
     const url = this.sandbox ? SANDBOX_URL : PRODUCTION_URL;
-    
+
     // Загружаем WSDL вручную с Basic Auth
     const wsdlXml = await this.loadWsdl(url);
-    
+
     const options = {
       endpoint: url,
     };
@@ -46,7 +52,9 @@ export default class NovaPoshtaWms {
 
     const wsdlUrl = `${baseUrl}?wsdl`;
     const url = new URL(wsdlUrl);
-    const auth = Buffer.from(`${this.login}:${this.password}`).toString("base64");
+    const auth = Buffer.from(`${this.login}:${this.password}`).toString(
+      "base64",
+    );
 
     return new Promise((resolve, reject) => {
       const options = {
@@ -85,7 +93,7 @@ export default class NovaPoshtaWms {
 
   async callMethod(methodName: string, args: Record<string, unknown>) {
     const client = await this.getClient();
-    
+
     return new Promise((resolve, reject) => {
       client[methodName](args, (err: Error | null, result: unknown) => {
         if (err) {
@@ -99,5 +107,12 @@ export default class NovaPoshtaWms {
 
   async getSoapClient(): Promise<Client> {
     return this.getClient();
+  }
+
+  async getOrdersType() {
+    const client = await this.getClient();
+    const wsdl = client.wsdl as any;
+
+    return wsdl;
   }
 }
