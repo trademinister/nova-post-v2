@@ -7,11 +7,5 @@ export default {
         settings: "Settings",
       },
     },
-    invoice: {
-      title: "Invoice",
-      links: {
-        draft: "Draft",
-      },
-    },
   },
 };

@@ -9,7 +9,6 @@ import {
   useNavigate,
   useNavigation,
   useSearchParams,
-  useSubmit,
 } from "react-router";
 import { action, loader } from "./route";
 
@@ -22,14 +21,16 @@ export default function NovaPoshtaFfSettings() {
   const navigate = useNavigate();
   const navigation = useNavigation();
 
-  const [paymentMethodName, setPaymentMethodName] = useState("");
   const [searchParams] = useSearchParams();
   const locationsOrderBy = searchParams.get("locationsOrderBy") || "name";
   const collectionsOrderBy = searchParams.get("collectionsOrderBy") || "name";
-
   const fetcherLogin = useFetcher<typeof action>();
   const fetcherSaveSettings = useFetcher<typeof action>();
   const fetcherPaymentMethod = useFetcher<typeof action>();
+  const fetcherResetSettings = useFetcher<typeof action>();
+
+  const [paymentMethodName, setPaymentMethodName] = useState("");
+  const [showOrganizationTooltip, setShowOrganizationTooltip] = useState(true);
 
   const {
     register,
@@ -59,6 +60,20 @@ export default function NovaPoshtaFfSettings() {
       orderRiskAssissemnt: ffSettings?.orderRiskAssissemnt,
       orderRiskLevels: ffSettings?.orderRiskLevels,
       fulfillBy: ffSettings?.fulfillBy,
+      locations:
+        ffLocations?.locations?.map((location) => ({
+          id: location.id,
+          destinationWarehouse: location.destinationWarehouse || "",
+          remainsIsActive: location.remainsIsActive || false,
+          isActive: location.isActive || false,
+        })) || [],
+      collections:
+        ffCollections?.collections?.map((collection) => ({
+          id: collection.id,
+          destinationWarehouse: collection.destinationWarehouse || "",
+          remainsIsActive: collection.remainsIsActive || false,
+          isActive: collection.isActive || false,
+        })) || [],
     },
   });
 
@@ -83,6 +98,76 @@ export default function NovaPoshtaFfSettings() {
       }
     }
   }, [fetcherSaveSettings, mainReset, mainGetValues]);
+
+  useEffect(() => {
+    if (fetcherResetSettings && fetcherResetSettings.data?.success) {
+      if (fetcherResetSettings.data.message) {
+        shopify.toast.show(
+          t(`ff_status.toast.success.${fetcherResetSettings.data.message}`),
+        );
+      }
+
+      if (fetcherResetSettings.data.message === "reset_ff_settings_success") {
+        mainReset({
+          isEnabled: false,
+          processPaymentgMethod: false,
+          orderRiskAssissemnt: false,
+          orderRiskLevels: ["HIGH"],
+          fulfillBy: "locations",
+          locations: [],
+          collections: [],
+        });
+        navigate(".", { replace: true });
+      }
+    }
+  }, [fetcherResetSettings, navigate, t, mainReset]);
+
+  useEffect(() => {
+    if (!isDirty) {
+      const locationsData =
+        ffLocations?.locations?.map((location) => ({
+          id: location.id,
+          destinationWarehouse: location.destinationWarehouse || "",
+          remainsIsActive: location.remainsIsActive || false,
+          isActive: location.isActive || false,
+        })) || [];
+
+      const collectionsData =
+        ffCollections?.collections?.map((collection) => ({
+          id: collection.id,
+          destinationWarehouse: collection.destinationWarehouse || "",
+          remainsIsActive: collection.remainsIsActive || false,
+          isActive: collection.isActive || false,
+        })) || [];
+
+      const currentLocations = mainWatch("locations") || [];
+      const currentCollections = mainWatch("collections") || [];
+
+      const mergedLocations = [
+        ...currentLocations.filter(
+          (loc) => !locationsData.some((l) => l.id === loc.id),
+        ),
+        ...locationsData,
+      ];
+
+      const mergedCollections = [
+        ...currentCollections.filter(
+          (col) => !collectionsData.some((c) => c.id === col.id),
+        ),
+        ...collectionsData,
+      ];
+
+      mainReset({
+        isEnabled: ffSettings?.isEnabled,
+        processPaymentgMethod: ffSettings?.processPaymentgMethod,
+        orderRiskAssissemnt: ffSettings?.orderRiskAssissemnt,
+        orderRiskLevels: ffSettings?.orderRiskLevels,
+        fulfillBy: ffSettings?.fulfillBy,
+        locations: mergedLocations,
+        collections: mergedCollections,
+      });
+    }
+  }, [ffLocations, ffCollections, ffSettings, mainReset, isDirty, mainWatch]);
 
   useEffect(() => {
     if (actionData && actionData?.error) {
@@ -114,11 +199,13 @@ export default function NovaPoshtaFfSettings() {
   const handleSubmitSaveSettings = mainHandleSubmit((data) => {
     const body = {
       action: "save_ff_settings",
-      isEnabled: data.isEnabled ?? false,
-      processPaymentgMethod: data.processPaymentgMethod ?? false,
-      orderRiskAssissemnt: data.orderRiskAssissemnt ?? false,
-      orderRiskLevels: data.orderRiskLevels ?? [],
+      isEnabled: String(data.isEnabled ?? false),
+      processPaymentgMethod: String(data.processPaymentgMethod ?? false),
+      orderRiskAssissemnt: String(data.orderRiskAssissemnt ?? false),
+      orderRiskLevels: JSON.stringify(data.orderRiskLevels ?? []),
       fulfillBy: data.fulfillBy || null,
+      locations: JSON.stringify(data.locations || []),
+      collections: JSON.stringify(data.collections || []),
     };
 
     fetcherSaveSettings.submit(body, {
@@ -186,6 +273,13 @@ export default function NovaPoshtaFfSettings() {
     setMainValue("orderRiskLevels", newLevels, {
       shouldDirty: true,
     });
+  };
+
+  const handleSubmitResetSettings = () => {
+    const body = {
+      action: "reset_ff_settings",
+    };
+    fetcherResetSettings.submit(body, { method: "post" });
   };
 
   return (
@@ -572,7 +666,28 @@ export default function NovaPoshtaFfSettings() {
                             </s-table-cell>
                             <s-table-cell>
                               <s-text-field
-                                value={location.destinationWarehouse || ""}
+                                value={
+                                  mainWatch("locations")?.find(
+                                    (l) => l.id === location.id,
+                                  )?.destinationWarehouse || ""
+                                }
+                                onInput={(e) => {
+                                  const currentLocations =
+                                    mainWatch("locations") || [];
+                                  const updatedLocations = currentLocations.map(
+                                    (l) =>
+                                      l.id === location.id
+                                        ? {
+                                            ...l,
+                                            destinationWarehouse:
+                                              e.currentTarget.value,
+                                          }
+                                        : l,
+                                  );
+                                  setMainValue("locations", updatedLocations, {
+                                    shouldDirty: true,
+                                  });
+                                }}
                               />
                             </s-table-cell>
                             <s-table-cell>
@@ -580,7 +695,34 @@ export default function NovaPoshtaFfSettings() {
                                 direction="inline"
                                 justifyContent="center"
                               >
-                                <s-switch checked={location.remainsIsActive} />
+                                <s-switch
+                                  checked={
+                                    mainWatch("locations")?.find(
+                                      (l) => l.id === location.id,
+                                    )?.remainsIsActive || false
+                                  }
+                                  onChange={(e) => {
+                                    const currentLocations =
+                                      mainWatch("locations") || [];
+                                    const updatedLocations =
+                                      currentLocations.map((l) =>
+                                        l.id === location.id
+                                          ? {
+                                              ...l,
+                                              remainsIsActive:
+                                                e.currentTarget.checked,
+                                            }
+                                          : l,
+                                      );
+                                    setMainValue(
+                                      "locations",
+                                      updatedLocations,
+                                      {
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  }}
+                                />
                               </s-stack>
                             </s-table-cell>
                             <s-table-cell>
@@ -588,7 +730,33 @@ export default function NovaPoshtaFfSettings() {
                                 direction="inline"
                                 justifyContent="center"
                               >
-                                <s-switch checked={location.isActive} />
+                                <s-switch
+                                  checked={
+                                    mainWatch("locations")?.find(
+                                      (l) => l.id === location.id,
+                                    )?.isActive || false
+                                  }
+                                  onChange={(e) => {
+                                    const currentLocations =
+                                      mainWatch("locations") || [];
+                                    const updatedLocations =
+                                      currentLocations.map((l) =>
+                                        l.id === location.id
+                                          ? {
+                                              ...l,
+                                              isActive: e.currentTarget.checked,
+                                            }
+                                          : l,
+                                      );
+                                    setMainValue(
+                                      "locations",
+                                      updatedLocations,
+                                      {
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  }}
+                                />
                               </s-stack>
                             </s-table-cell>
                           </s-table-row>
@@ -747,7 +915,32 @@ export default function NovaPoshtaFfSettings() {
                             </s-table-cell>
                             <s-table-cell>
                               <s-text-field
-                                value={collection.destinationWarehouse || ""}
+                                value={
+                                  mainWatch("collections")?.find(
+                                    (c) => c.id === collection.id,
+                                  )?.destinationWarehouse || ""
+                                }
+                                onInput={(e) => {
+                                  const currentCollections =
+                                    mainWatch("collections") || [];
+                                  const updatedCollections =
+                                    currentCollections.map((c) =>
+                                      c.id === collection.id
+                                        ? {
+                                            ...c,
+                                            destinationWarehouse:
+                                              e.currentTarget.value,
+                                          }
+                                        : c,
+                                    );
+                                  setMainValue(
+                                    "collections",
+                                    updatedCollections,
+                                    {
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                }}
                               />
                             </s-table-cell>
                             <s-table-cell>
@@ -756,7 +949,32 @@ export default function NovaPoshtaFfSettings() {
                                 justifyContent="center"
                               >
                                 <s-switch
-                                  checked={collection.remainsIsActive}
+                                  checked={
+                                    mainWatch("collections")?.find(
+                                      (c) => c.id === collection.id,
+                                    )?.remainsIsActive || false
+                                  }
+                                  onChange={(e) => {
+                                    const currentCollections =
+                                      mainWatch("collections") || [];
+                                    const updatedCollections =
+                                      currentCollections.map((c) =>
+                                        c.id === collection.id
+                                          ? {
+                                              ...c,
+                                              remainsIsActive:
+                                                e.currentTarget.checked,
+                                            }
+                                          : c,
+                                      );
+                                    setMainValue(
+                                      "collections",
+                                      updatedCollections,
+                                      {
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  }}
                                 />
                               </s-stack>
                             </s-table-cell>
@@ -765,7 +983,33 @@ export default function NovaPoshtaFfSettings() {
                                 direction="inline"
                                 justifyContent="center"
                               >
-                                <s-switch checked={collection.isActive} />
+                                <s-switch
+                                  checked={
+                                    mainWatch("collections")?.find(
+                                      (c) => c.id === collection.id,
+                                    )?.isActive || false
+                                  }
+                                  onChange={(e) => {
+                                    const currentCollections =
+                                      mainWatch("collections") || [];
+                                    const updatedCollections =
+                                      currentCollections.map((c) =>
+                                        c.id === collection.id
+                                          ? {
+                                              ...c,
+                                              isActive: e.currentTarget.checked,
+                                            }
+                                          : c,
+                                      );
+                                    setMainValue(
+                                      "collections",
+                                      updatedCollections,
+                                      {
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  }}
+                                />
                               </s-stack>
                             </s-table-cell>
                           </s-table-row>
@@ -783,23 +1027,44 @@ export default function NovaPoshtaFfSettings() {
             borderStyle="solid"
             border="base"
             overflow="hidden"
-            padding="base"
           >
-            <s-stack direction="inline" justifyContent="space-between">
-              <s-box>
-                <s-heading>{t("settings.tools.reset_heading")}</s-heading>
-                <s-paragraph color="subdued">
-                  {t("settings.tools.reset_description")}
-                </s-paragraph>
+            <s-stack>
+              <s-clickable>
+                <s-box padding="base">
+                  <s-stack
+                    direction="inline"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <s-box>
+                      <s-heading>{t("settings.tools.logs_heading")}</s-heading>
+                      <s-paragraph color="subdued">
+                        {t("settings.tools.logs_description")}
+                      </s-paragraph>
+                    </s-box>
+                    <s-icon type="chevron-right" />
+                  </s-stack>
+                </s-box>
+              </s-clickable>
+              <s-divider />
+              <s-box padding="base">
+                <s-stack direction="inline" justifyContent="space-between">
+                  <s-box>
+                    <s-heading>{t("settings.tools.reset_heading")}</s-heading>
+                    <s-paragraph color="subdued">
+                      {t("settings.tools.reset_description")}
+                    </s-paragraph>
+                  </s-box>
+                  <s-button
+                    variant="secondary"
+                    tone="critical"
+                    icon="reset"
+                    commandFor="reset-ff-settings-modal"
+                  >
+                    {t("global:buttons.reset")}
+                  </s-button>
+                </s-stack>
               </s-box>
-              <s-button
-                variant="secondary"
-                tone="critical"
-                icon="reset"
-                onClick={() => {}}
-              >
-                {t("global:buttons.reset")}
-              </s-button>
             </s-stack>
           </s-box>
         </s-section>
@@ -807,7 +1072,11 @@ export default function NovaPoshtaFfSettings() {
       <s-section slot="aside" heading={t("ff_status.heading")}>
         <s-unordered-list>
           <s-list-item>
-            <s-stack direction="inline" gap="small-300">
+            <s-stack
+              direction="inline"
+              gap="small-300"
+              justifyContent="space-between"
+            >
               <s-text>{t("ff_status.authoriz_status")}:</s-text>
               {ffSettings?.npLogin && ffSettings?.npPassword ? (
                 <s-badge tone="success" icon="check-circle">
@@ -821,7 +1090,11 @@ export default function NovaPoshtaFfSettings() {
             </s-stack>
           </s-list-item>
           <s-list-item>
-            <s-stack direction="inline" gap="small-300">
+            <s-stack
+              direction="inline"
+              gap="small-300"
+              justifyContent="space-between"
+            >
               <s-text>{t("ff_status.autoff_status")}:</s-text>
               <s-badge
                 icon={ffSettings?.isEnabled ? "check-circle" : "x-circle"}
@@ -834,7 +1107,11 @@ export default function NovaPoshtaFfSettings() {
             </s-stack>
           </s-list-item>
           <s-list-item>
-            <s-stack direction="inline" gap="small-300">
+            <s-stack
+              direction="inline"
+              gap="small-300"
+              justifyContent="space-between"
+            >
               <s-text>{t("ff_status.curent_organization")}:</s-text>
               {ffSettings?.npOrganization && (
                 <s-chip>{ffSettings?.npOrganization}</s-chip>
@@ -845,6 +1122,15 @@ export default function NovaPoshtaFfSettings() {
       </s-section>
       <s-section slot="aside" heading={t("auth.form_title")}>
         <Form onSubmit={handleSubmitLoginSettings}>
+          {showOrganizationTooltip && (
+            <s-banner
+              onDismiss={() => setShowOrganizationTooltip(false)}
+              tone="info"
+              dismissible
+            >
+              <s-paragraph>{t("auth.np_organization_tooltip")}</s-paragraph>
+            </s-banner>
+          )}
           <s-stack gap="base">
             <s-password-field
               required
@@ -865,7 +1151,6 @@ export default function NovaPoshtaFfSettings() {
             <s-text-field
               required
               label={t("auth.np_organization_label")}
-              details={t("auth.np_organization_tooltip")}
               {...register("npOrganization", {
                 required: t("auth.np_organization_required"),
               })}
@@ -901,6 +1186,30 @@ export default function NovaPoshtaFfSettings() {
           </s-stack>
         </Form>
       </s-section>
+      <s-modal
+        id="reset-ff-settings-modal"
+        heading={t("settings.tools.reset_heading")}
+      >
+        <s-paragraph>{t("settings.tools.reset_description")}</s-paragraph>
+        <s-button
+          slot="secondary-actions"
+          commandFor="reset-ff-settings-modal"
+          command="--hide"
+        >
+          {t("global:buttons.close")}
+        </s-button>
+        <s-button
+          slot="primary-action"
+          commandFor="reset-ff-settings-modal"
+          variant="primary"
+          tone="critical"
+          command="--hide"
+          onClick={handleSubmitResetSettings}
+          loading={fetcherResetSettings.state === "submitting"}
+        >
+          {t("global:buttons.reset")}
+        </s-button>
+      </s-modal>
     </s-page>
   );
 }

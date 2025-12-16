@@ -1,16 +1,10 @@
 export default {
-  page_title: "Settings",
+  page_title: "Налаштування",
   settings_box: {
     settings: {
-      title: "Einstellungen",
+      title: "Налаштування",
       links: {
-        settings: "Einstellungen",
-      },
-    },
-    invoice: {
-      title: "Rechnungen",
-      links: {
-        draft: "Entwurf",
+        settings: "Налаштування",
       },
     },
   },

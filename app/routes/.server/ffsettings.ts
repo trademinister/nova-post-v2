@@ -223,3 +223,86 @@ export async function getAllFfCollections(
     hasPreviousPage: page > 1,
   };
 }
+
+export async function updateFfLocation(
+  locationId: string,
+  data: {
+    destinationWarehouse?: string;
+    isActive?: boolean;
+    remainsIsActive?: boolean;
+  },
+) {
+  return await db.fFLocations.update({
+    where: {
+      id: locationId,
+    },
+    data,
+  });
+}
+
+export async function updateFfCollection(
+  collectionId: string,
+  data: {
+    destinationWarehouse?: string;
+    isActive?: boolean;
+    remainsIsActive?: boolean;
+  },
+) {
+  return await db.fFCollections.update({
+    where: {
+      id: collectionId,
+    },
+    data,
+  });
+}
+
+export async function resetFFSettings(sessionId: string) {
+  const ffSettings = await getFFSettings(sessionId);
+
+  if (!ffSettings || !ffSettings.id) {
+    throw new Error("FFSettings not found");
+  }
+
+  await db.fFSettings.update({
+    where: {
+      sessionId: sessionId,
+    },
+    data: {
+      isEnabled: false,
+      processPaymentgMethod: false,
+      fulfillBy: "locations",
+      orderRiskAssissemnt: false,
+      orderRiskLevels: ["HIGH"],
+    },
+  });
+
+  await db.fFPaymentMethods.deleteMany({
+    where: {
+      ffSettingsId: ffSettings.id,
+    },
+  });
+
+  await db.fFLocations.updateMany({
+    where: {
+      ffSettingsId: ffSettings.id,
+    },
+    data: {
+      destinationWarehouse: null,
+      isActive: false,
+      remainsIsActive: false,
+    },
+  });
+
+  await db.fFCollections.updateMany({
+    where: {
+      ffSettingsId: ffSettings.id,
+    },
+    data: {
+      destinationWarehouse: null,
+      isActive: false,
+      remainsIsActive: false,
+    },
+  });
+
+  return true;
+}

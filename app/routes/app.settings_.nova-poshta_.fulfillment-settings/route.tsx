@@ -9,6 +9,9 @@ import {
   getAllFfPaymentMethods,
   getFFSettings,
   logoutFFSettings,
+  resetFFSettings,
+  updateFfCollection,
+  updateFfLocation,
   updateFfPaymentMethod,
   updateFFSettings,
 } from "~/routes/.server/ffsettings";
@@ -104,10 +107,62 @@ export async function action({ request }: ActionFunctionArgs) {
         const isEnabled = formData.get("isEnabled") === "true";
         const processPaymentgMethod =
           formData.get("processPaymentgMethod") === "true";
+        const orderRiskAssissemnt =
+          formData.get("orderRiskAssissemnt") === "true";
+        const orderRiskLevelsStr = formData.get("orderRiskLevels") as string;
+        const orderRiskLevels = JSON.parse(
+          orderRiskLevelsStr || "[]",
+        ) as string[];
+        const fulfillBy = formData.get("fulfillBy") as string;
+
         await updateFFSettings(session.id, {
           isEnabled,
           processPaymentgMethod,
+          orderRiskAssissemnt,
+          orderRiskLevels,
+          fulfillBy,
         });
+
+        // Update locations
+        const locationsStr = formData.get("locations") as string;
+        if (locationsStr) {
+          const locations = JSON.parse(locationsStr) as Array<{
+            id: string;
+            destinationWarehouse?: string;
+            isActive?: boolean;
+            remainsIsActive?: boolean;
+          }>;
+          await Promise.all(
+            locations.map((location) =>
+              updateFfLocation(location.id, {
+                destinationWarehouse: location.destinationWarehouse,
+                isActive: location.isActive,
+                remainsIsActive: location.remainsIsActive,
+              }),
+            ),
+          );
+        }
+
+        // Update collections
+        const collectionsStr = formData.get("collections") as string;
+        if (collectionsStr) {
+          const collections = JSON.parse(collectionsStr) as Array<{
+            id: string;
+            destinationWarehouse?: string;
+            isActive?: boolean;
+            remainsIsActive?: boolean;
+          }>;
+          await Promise.all(
+            collections.map((collection) =>
+              updateFfCollection(collection.id, {
+                destinationWarehouse: collection.destinationWarehouse,
+                isActive: collection.isActive,
+                remainsIsActive: collection.remainsIsActive,
+              }),
+            ),
+          );
+        }
+
         return { success: true, message: "save_ff_settings_success" };
       case "create_ff_payment_method":
         const name = formData.get("name") as string;
@@ -124,6 +179,9 @@ export async function action({ request }: ActionFunctionArgs) {
         const statuses = JSON.parse(statusesStr || "[]") as string[];
         await updateFfPaymentMethod(ffPaymentMethodId2, { statuses });
         return { success: true };
+      case "reset_ff_settings":
+        await resetFFSettings(session.id);
+        return { success: true, message: "reset_ff_settings_success" };
       default:
         return { error: "invalid_action" };
     }

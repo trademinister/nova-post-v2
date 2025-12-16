@@ -7,6 +7,7 @@ export default {
   navigating: {
     home: "Home",
     settings: "Settings",
+    plans: "Plans",
     app_settings: "App Settings",
     autoff_settings: "Fulfillment Settings",
     np_settings: "Nova Poshta Settings",

@@ -1,7 +1,7 @@
 export default {
   settings: {
     heading: {
-      enable: "Enable Auto Fulfillment",
+      enable: "Auto Fulfillment",
       order_risk_assissemnt: "Order Risk Assessment",
       process_payment_method: "Payment Methods",
       fulfillment_settings: "Fulfillment Settings",
@@ -26,9 +26,9 @@ export default {
         paid: "Paid",
       },
     },
-    order_risk_assissemnt: "Order Risk Assessment",
+    order_risk_assissemnt: "Enable Order Risk Assessment",
     order_risk_assissemnt_details:
-      "Enable risk assessment for orders before fulfillment",
+      "If an order has a risk level you selected in the checkbox, it will not be fulfilled",
     order_risk_levels: {
       low: "Low",
       medium: "Medium",
@@ -97,10 +97,10 @@ export default {
     np_login_required: "Login is required",
     np_password_label: "Nova Poshta Password",
     np_password_required: "Password is required",
-    np_organization_label: "Organization Key",
+    np_organization_label: "Organization Name",
     np_organization_tooltip:
-      "Enter your Nova Poshta organization key for authentication",
-    np_organization_required: "Organization key is required",
+      "If you want to send from another business, enter Organization Name and Additional Organization Key",
+    np_organization_required: "Organization name is required",
     additional_organization_key_label: "Additional Organization Key",
     logout: "Logout",
     submit_button: "Login",

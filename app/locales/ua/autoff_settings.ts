@@ -26,9 +26,9 @@ export default {
         paid: "Оплачено",
       },
     },
-    order_risk_assissemnt: "Оцінка ризику замовлення",
+    order_risk_assissemnt: "Увімкнути оцінку ризику замовлення",
     order_risk_assissemnt_details:
-      "Увімкнути оцінку ризику для замовлень перед виконанням",
+      "Якщо замовлення має рівень ризику, який ви вибрали в чекбоксі, воно не буде виконано",
     order_risk_levels: {
       low: "Низький",
       medium: "Середній",
@@ -99,11 +99,10 @@ export default {
     np_password_required: "Пароль обов'язковий",
     np_organization_label: "Ключ організації",
     np_organization_tooltip:
-      "Введіть ключ організації Nova Poshta для авторизації",
+      "Якщо ви хочете надсилати від імені іншого бізнесу, введіть Назву організації та Додатковий ключ організації",
     np_organization_required: "Ключ організації обов'язковий",
     additional_organization_key_label: "Додатковий ключ організації",
     logout: "Вихід",
     submit_button: "Увійти",
   },
 };
-

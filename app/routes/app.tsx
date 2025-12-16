@@ -10,9 +10,9 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
 import tailwindStyles from "~/tailwind.css?url";
-import "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
+import "@shopify/app-bridge-react";
 
 export const links = () => [{ rel: "stylesheet", href: tailwindStyles }];
 
@@ -37,6 +37,7 @@ export default function App() {
       <s-app-nav>
         <s-link href="/app">{t("navigating.home")}</s-link>
         <s-link href="/app/settings">{t("navigating.settings")}</s-link>
+        <s-link href="/app/plans">{t("navigating.plans")}</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>
