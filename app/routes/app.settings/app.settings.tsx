@@ -153,18 +153,15 @@ export default function Settings() {
             </s-grid-item>
             <s-grid-item>
               <SettingBlock
-                iconName="novaposhta"
-                title={t("settings_box.nova_poshta.title")}
+                iconName="settings"
+                title={t("settings_box.nova_poshta.fulfillment_settings.title")}
                 links={[
                   {
                     id: "1",
-                    name: t("settings_box.nova_poshta.links.parcel_settings"),
-                    url: "nova-poshta/parcel-settings",
-                  },
-                  {
-                    id: "2",
-                    name: t("settings_box.nova_poshta.links.fulfillment_settings"),
-                    url: "nova-poshta/fulfillment-settings",
+                    name: t(
+                      "settings_box.nova_poshta.fulfillment_settings.links.settings",
+                    ),
+                    url: "fulfillment",
                   },
                 ]}
               />

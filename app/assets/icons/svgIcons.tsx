@@ -1,6 +1,6 @@
 export interface ISvgIcons {
   className?: string;
-  name: "novaposhta" | "lng-ua" | "lng-en" | "settings";
+  name: "novaposhta" | "lng-ua" | "lng-en" | "settings" | "fulfillment";
   size?: string;
 }
 

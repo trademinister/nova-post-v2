@@ -1,4 +1,4 @@
-import { FFPaymentMethods, FFSettings } from "@prisma/client";
+import { FFFilteredTags, FFPaymentMethods, FFSettings } from "@prisma/client";
 import db from "../../db.server";
 
 export async function getFFSettings(sessionId: string) {
@@ -256,6 +256,48 @@ export async function updateFfCollection(
   });
 }
 
+export async function createFilteredTag(
+  ffSettingsId: string,
+  value: string,
+  types: string[],
+) {
+  return await db.fFFilteredTags.create({
+    data: {
+      ffSettingsId: ffSettingsId,
+      types: types,
+      value: value,
+    },
+  });
+}
+
+export async function updateFilteredTag(
+  filteredTagId: string,
+  data: Partial<FFFilteredTags>,
+) {
+  return await db.fFFilteredTags.update({
+    where: {
+      id: filteredTagId,
+    },
+    data,
+  });
+}
+
+export async function deleteFilteredTag(filteredTagId: string) {
+  return await db.fFFilteredTags.delete({
+    where: {
+      id: filteredTagId,
+    },
+  });
+}
+
+export async function getAllFilteredTags(ffSettingsId: string) {
+  return await db.fFFilteredTags.findMany({
+    where: {
+      ffSettingsId: ffSettingsId,
+    },
+  });
+}
+
 export async function resetFFSettings(sessionId: string) {
   const ffSettings = await getFFSettings(sessionId);
 
@@ -273,36 +315,39 @@ export async function resetFFSettings(sessionId: string) {
       fulfillBy: "locations",
       orderRiskAssissemnt: false,
       orderRiskLevels: ["HIGH"],
+      filteredByTagsIsActive: false,
+      filteredTags: {
+        deleteMany: {},
+      },
+      paymentMethods: {
+        deleteMany: {},
+      },
+      locations: {
+        updateMany: {
+          where: {
+            ffSettingsId: ffSettings.id,
+          },
+          data: {
+            destinationWarehouse: null,
+            isActive: false,
+            remainsIsActive: false,
+          },
+        },
+      },
+      collections: {
+        updateMany: {
+          where: {
+            ffSettingsId: ffSettings.id,
+          },
+          data: {
+            destinationWarehouse: null,
+            isActive: false,
+            remainsIsActive: false,
+          },
+        },
+      },
     },
   });
 
-  await db.fFPaymentMethods.deleteMany({
-    where: {
-      ffSettingsId: ffSettings.id,
-    },
-  });
-
-  await db.fFLocations.updateMany({
-    where: {
-      ffSettingsId: ffSettings.id,
-    },
-    data: {
-      destinationWarehouse: null,
-      isActive: false,
-      remainsIsActive: false,
-    },
-  });
-
-  await db.fFCollections.updateMany({
-    where: {
-      ffSettingsId: ffSettings.id,
-    },
-    data: {
-      destinationWarehouse: null,
-      isActive: false,
-      remainsIsActive: false,
-    },
-  });
-
-  return true;
+  return;
 }

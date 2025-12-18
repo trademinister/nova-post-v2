@@ -2,6 +2,8 @@ export default {
   buttons: {
     delete: "Видалити",
     reset: "Скинути",
+    add: "Додати",
+    create: "Створити",
   },
   cancel: "Скасувати",
   navigating: {

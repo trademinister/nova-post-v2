@@ -3,6 +3,7 @@ export default {
     heading: {
       enable: "Auto Fulfillment",
       order_risk_assissemnt: "Order Risk Assessment",
+      filtered_by_tags: "Filter by Tags",
       process_payment_method: "Payment Methods",
       fulfillment_settings: "Fulfillment Settings",
       tools: "Tools",
@@ -61,10 +62,29 @@ export default {
         is_active: "Is Active",
       },
     },
+    filtered_by_tags: {
+      enable: "Enable Filter by Tags",
+      enable_details:
+        "Filter orders by tags. Only orders with selected tags will be not fulfilled",
+      types: {
+        label: "Tag Types",
+        order: "Order Tags",
+        customer: "Customer Tags",
+      },
+      table: {
+        headers: {
+          value: "Tag Value",
+          type: "Types",
+          actions: "Actions",
+        },
+      },
+    },
     tools: {
       reset_heading: "Reset Settings",
       reset_description:
         "Reset all fulfillment settings to their default values",
+      logs_heading: "View Logs",
+      logs_description: "View fulfillment logs and history",
     },
   },
   ff_status: {
@@ -84,10 +104,14 @@ export default {
         save_ff_payment_method_success: "Payment method added successfully",
         delete_ff_payment_method_success: "Payment method deleted successfully",
         update_ff_payment_method_success: "Payment method updated successfully",
+        create_filtered_tag_success: "Filtered tag created successfully",
+        delete_filtered_tag_success: "Filtered tag deleted successfully",
+        reset_ff_settings_success: "Settings reset successfully",
       },
       error: {
         np_unauthorized: "Unauthorized. Please check your credentials",
         unknown_error: "An error occurred",
+        select_filtered_tags_types: "Please select at least one tag type",
       },
     },
   },

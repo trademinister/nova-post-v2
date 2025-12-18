@@ -146,9 +146,7 @@ const shopify = shopifyApp({
 
         const subscriptionData = (await subscriptionRes.json()).data;
 
-        console.log(
-          subscriptionData?.currentAppInstallation.activeSubscriptions,
-        );
+        // if()
 
         shopify.registerWebhooks({ session });
       }

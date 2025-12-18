@@ -23,24 +23,14 @@ export default function Plans() {
   return (
     <s-page>
       <s-stack>
-        <s-button onClick={() => handleActivateSubscription(plans[0])}>
-          basic monthly
-        </s-button>
-        <s-button onClick={() => handleActivateSubscription(plans[1])}>
-          basic annual
-        </s-button>
-        <s-button onClick={() => handleActivateSubscription(plans[2])}>
-          pro monthly
-        </s-button>
-        <s-button onClick={() => handleActivateSubscription(plans[3])}>
-          pro annual
-        </s-button>
-        <s-button onClick={() => handleActivateSubscription(plans[4])}>
-          enterprise monthly
-        </s-button>
-        <s-button onClick={() => handleActivateSubscription(plans[5])}>
-          enterprise annual
-        </s-button>
+        {plans.map((plan) => (
+          <s-button
+            key={plan.name}
+            onClick={() => handleActivateSubscription(plan.name)}
+          >
+            {plan.name}
+          </s-button>
+        ))}
         <s-button onClick={handleCancelSubscription}>
           cancel subscription
         </s-button>

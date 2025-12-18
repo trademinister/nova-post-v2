@@ -2,6 +2,8 @@ export default {
   buttons: {
     delete: "Delete",
     reset: "Reset",
+    add: "Add",
+    create: "Create",
   },
   cancel: "Cancel",
   navigating: {

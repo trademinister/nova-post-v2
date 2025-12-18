@@ -1,12 +1,15 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import NovaPoshtaFfSettings from "./app.settings.nova-poshta-fulfillment";
+import NovaPoshtaFfSettings from "./app.settings.fulfillment";
 import { authenticate } from "~/shopify.server";
 import {
   createFfPaymentMethod,
+  createFilteredTag,
   deleteFfPaymentMethod,
+  deleteFilteredTag,
   getAllFfCollections,
   getAllFfLocations,
   getAllFfPaymentMethods,
+  getAllFilteredTags,
   getFFSettings,
   logoutFFSettings,
   resetFFSettings,
@@ -14,6 +17,7 @@ import {
   updateFfLocation,
   updateFfPaymentMethod,
   updateFFSettings,
+  updateFilteredTag,
 } from "~/routes/.server/ffsettings";
 import NovaPoshtaWms from "~/api/novaPoshtaWms";
 
@@ -62,11 +66,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       collectionsOrderBy,
     );
 
+    const ffFilteredTags = await getAllFilteredTags(ffSettings.id);
+
     return {
       ffSettings,
       ffPaymentMethods,
       ffLocations,
       ffCollections,
+      ffFilteredTags,
     };
   } catch (error: any) {
     return { error: error.message || "unknown_error" };
@@ -113,6 +120,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const orderRiskLevels = JSON.parse(
           orderRiskLevelsStr || "[]",
         ) as string[];
+        const filteredByTagsIsActive = formData.get("filteredByTagsIsActive") === "true";
         const fulfillBy = formData.get("fulfillBy") as string;
 
         await updateFFSettings(session.id, {
@@ -121,6 +129,7 @@ export async function action({ request }: ActionFunctionArgs) {
           orderRiskAssissemnt,
           orderRiskLevels,
           fulfillBy,
+          filteredByTagsIsActive,
         });
 
         // Update locations
@@ -163,6 +172,29 @@ export async function action({ request }: ActionFunctionArgs) {
           );
         }
 
+        // Update filtered tags
+        const filteredTagsStr = formData.get("filteredTags") as string;
+        if (filteredTagsStr) {
+          const filteredTags = JSON.parse(filteredTagsStr) as Array<{
+            id: string;
+            value?: string;
+            types?: string[];
+          }>;
+          await Promise.all(
+            filteredTags.map(async (tag) => {
+              try {
+                await updateFilteredTag(tag.id, {
+                  types: tag.types,
+                });
+              } catch (error: any) {
+                if (error.code !== "P2025") {
+                  throw error;
+                }
+              }
+            }),
+          );
+        }
+
         return { success: true, message: "save_ff_settings_success" };
       case "create_ff_payment_method":
         const name = formData.get("name") as string;
@@ -179,6 +211,17 @@ export async function action({ request }: ActionFunctionArgs) {
         const statuses = JSON.parse(statusesStr || "[]") as string[];
         await updateFfPaymentMethod(ffPaymentMethodId2, { statuses });
         return { success: true };
+      case "create_filtered_tag":
+        const typesStr = formData.get("types") as string;
+        const types = JSON.parse(typesStr || "[]") as string[];
+        const value = formData.get("value") as string;
+        const ffSettings = await getFFSettings(session.id);
+        await createFilteredTag(ffSettings.id, value, types);
+        return { success: true, message: "create_filtered_tag_success" };
+      case "delete_filtered_tag":
+        const filteredTagId = formData.get("filteredTagId") as string;
+        await deleteFilteredTag(filteredTagId);
+        return { success: true, message: "delete_filtered_tag_success" };
       case "reset_ff_settings":
         await resetFFSettings(session.id);
         return { success: true, message: "reset_ff_settings_success" };

@@ -37,11 +37,21 @@ model FFSettings {
   fulfillBy                 String             @default("locations")
   orderRiskAssissemnt       Boolean            @default(false)
   orderRiskLevels           String[]           @default(["HIGH"])
+  filteredByTagsIsActive    Boolean            @default(false)
+  filteredTags              FFFilteredTags[]
   paymentMethods            FFPaymentMethods[]
   locations                 FFLocations[]
   collections               FFCollections[]
   sessionId                 String?            @unique
   session                   Session?           @relation(fields: [sessionId], references: [id])
+}
+
+model FFFilteredTags {
+  id           String      @id @default(uuid())
+  value        String
+  types        String[]    @default(["order"])
+  ffSettingsId String?
+  ffSettings   FFSettings? @relation(fields: [ffSettingsId], references: [id])
 }
 
 model FFLocations {

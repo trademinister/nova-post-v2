@@ -3,6 +3,7 @@ export default {
     heading: {
       enable: "Увімкнути автоматичне виконання",
       order_risk_assissemnt: "Оцінка ризику замовлення",
+      filtered_by_tags: "Фільтр за тегами",
       process_payment_method: "Методи оплати",
       fulfillment_settings: "Налаштування виконання",
       tools: "Інструменти",
@@ -61,10 +62,29 @@ export default {
         is_active: "Активна",
       },
     },
+    filtered_by_tags: {
+      enable: "Увімкнути фільтр за тегами",
+      enable_details:
+        "Фільтрувати замовлення за тегами. Тільки замовлення з вибраними тегами не будуть виконані",
+      types: {
+        label: "Типи тегів",
+        order: "Теги замовлення",
+        customer: "Теги клієнта",
+      },
+      table: {
+        headers: {
+          value: "Значення тегу",
+          type: "Типи",
+          actions: "Дії",
+        },
+      },
+    },
     tools: {
       reset_heading: "Скинути налаштування",
       reset_description:
         "Скинути всі налаштування виконання до значень за замовчуванням",
+      logs_heading: "Переглянути логи",
+      logs_description: "Переглянути логи виконання та історію",
     },
   },
   ff_status: {
@@ -84,10 +104,14 @@ export default {
         save_ff_payment_method_success: "Метод оплати успішно додано",
         delete_ff_payment_method_success: "Метод оплати успішно видалено",
         update_ff_payment_method_success: "Метод оплати успішно оновлено",
+        create_filtered_tag_success: "Тег фільтра успішно створено",
+        delete_filtered_tag_success: "Тег фільтра успішно видалено",
+        reset_ff_settings_success: "Налаштування успішно скинуто",
       },
       error: {
         np_unauthorized: "Не авторизовано. Перевірте свої облікові дані",
         unknown_error: "Сталася помилка",
+        select_filtered_tags_types: "Будь ласка, виберіть принаймні один тип тегу",
       },
     },
   },

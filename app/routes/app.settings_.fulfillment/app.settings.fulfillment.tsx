@@ -14,8 +14,13 @@ import { action, loader } from "./route";
 
 export default function NovaPoshtaFfSettings() {
   const { t } = useTranslation(["autoff_settings", "global"]);
-  const { ffSettings, ffPaymentMethods, ffLocations, ffCollections } =
-    useLoaderData<typeof loader>();
+  const {
+    ffSettings,
+    ffPaymentMethods,
+    ffLocations,
+    ffCollections,
+    ffFilteredTags,
+  } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const navigate = useNavigate();
@@ -28,7 +33,10 @@ export default function NovaPoshtaFfSettings() {
   const fetcherSaveSettings = useFetcher<typeof action>();
   const fetcherPaymentMethod = useFetcher<typeof action>();
   const fetcherResetSettings = useFetcher<typeof action>();
+  const fetcherFilteredTag = useFetcher<typeof action>();
 
+  const [filteredTagValue, setFilteredTagValue] = useState("");
+  const [filteredTagTypes, setFilteredTagTypes] = useState<string[]>(["order"]);
   const [paymentMethodName, setPaymentMethodName] = useState("");
   const [showOrganizationTooltip, setShowOrganizationTooltip] = useState(true);
 
@@ -59,7 +67,14 @@ export default function NovaPoshtaFfSettings() {
       processPaymentgMethod: ffSettings?.processPaymentgMethod,
       orderRiskAssissemnt: ffSettings?.orderRiskAssissemnt,
       orderRiskLevels: ffSettings?.orderRiskLevels,
+      filteredByTagsIsActive: ffSettings?.filteredByTagsIsActive,
       fulfillBy: ffSettings?.fulfillBy,
+      filteredTags:
+        ffFilteredTags?.map((tag) => ({
+          id: tag.id,
+          value: tag.value,
+          types: tag.types || [],
+        })) || [],
       locations:
         ffLocations?.locations?.map((location) => ({
           id: location.id,
@@ -123,6 +138,25 @@ export default function NovaPoshtaFfSettings() {
   }, [fetcherResetSettings, navigate, t, mainReset]);
 
   useEffect(() => {
+    if (fetcherFilteredTag && fetcherFilteredTag.data?.success) {
+      if (fetcherFilteredTag.data.message) {
+        shopify.toast.show(
+          t(`ff_status.toast.success.${fetcherFilteredTag.data.message}`),
+        );
+      }
+
+      if (
+        fetcherFilteredTag.data.message === "create_filtered_tag_success" ||
+        fetcherFilteredTag.data.message === "delete_filtered_tag_success"
+      ) {
+        setFilteredTagValue("");
+        setFilteredTagTypes(["order"]);
+        navigate(".", { replace: true });
+      }
+    }
+  }, [fetcherFilteredTag, navigate, t]);
+
+  useEffect(() => {
     if (!isDirty) {
       const locationsData =
         ffLocations?.locations?.map((location) => ({
@@ -140,8 +174,16 @@ export default function NovaPoshtaFfSettings() {
           isActive: collection.isActive || false,
         })) || [];
 
+      const filteredTagsData =
+        ffFilteredTags?.map((tag) => ({
+          id: tag.id,
+          value: tag.value,
+          types: tag.types || [],
+        })) || [];
+
       const currentLocations = mainWatch("locations") || [];
       const currentCollections = mainWatch("collections") || [];
+      const currentFilteredTags = mainWatch("filteredTags") || [];
 
       const mergedLocations = [
         ...currentLocations.filter(
@@ -157,17 +199,34 @@ export default function NovaPoshtaFfSettings() {
         ...collectionsData,
       ];
 
+      const mergedFilteredTags = [
+        ...currentFilteredTags.filter(
+          (tag) => !filteredTagsData.some((t) => t.id === tag.id),
+        ),
+        ...filteredTagsData,
+      ];
+
       mainReset({
         isEnabled: ffSettings?.isEnabled,
         processPaymentgMethod: ffSettings?.processPaymentgMethod,
         orderRiskAssissemnt: ffSettings?.orderRiskAssissemnt,
         orderRiskLevels: ffSettings?.orderRiskLevels,
+        filteredByTagsIsActive: ffSettings?.filteredByTagsIsActive,
         fulfillBy: ffSettings?.fulfillBy,
+        filteredTags: mergedFilteredTags,
         locations: mergedLocations,
         collections: mergedCollections,
       });
     }
-  }, [ffLocations, ffCollections, ffSettings, mainReset, isDirty, mainWatch]);
+  }, [
+    ffLocations,
+    ffCollections,
+    ffFilteredTags,
+    ffSettings,
+    mainReset,
+    isDirty,
+    mainWatch,
+  ]);
 
   useEffect(() => {
     if (actionData && actionData?.error) {
@@ -203,6 +262,8 @@ export default function NovaPoshtaFfSettings() {
       processPaymentgMethod: String(data.processPaymentgMethod ?? false),
       orderRiskAssissemnt: String(data.orderRiskAssissemnt ?? false),
       orderRiskLevels: JSON.stringify(data.orderRiskLevels ?? []),
+      filteredByTagsIsActive: String(data.filteredByTagsIsActive ?? false),
+      filteredTags: JSON.stringify(data.filteredTags || []),
       fulfillBy: data.fulfillBy || null,
       locations: JSON.stringify(data.locations || []),
       collections: JSON.stringify(data.collections || []),
@@ -282,6 +343,23 @@ export default function NovaPoshtaFfSettings() {
     fetcherResetSettings.submit(body, { method: "post" });
   };
 
+  const handleSubmitDeleteFilteredTag = (filteredTagId: string) => () => {
+    const body = {
+      filteredTagId: filteredTagId,
+      action: "delete_filtered_tag",
+    };
+    fetcherFilteredTag.submit(body, { method: "post" });
+  };
+
+  const handleSubmitCreateFilteredTag = (types: string[], value: string) => {
+    const body = {
+      types: JSON.stringify(types),
+      value: value,
+      action: "create_filtered_tag",
+    };
+
+    fetcherFilteredTag.submit(body, { method: "post" });
+  };
   return (
     <s-page heading={t("global:navigating.autoff_settings")} inlineSize="base">
       <s-link slot="breadcrumb-actions" href="/app/settings">
@@ -359,6 +437,162 @@ export default function NovaPoshtaFfSettings() {
                 );
               })}
             </s-stack>
+          </s-stack>
+        </s-section>
+        <s-section heading={t("settings.heading.filtered_by_tags")}>
+          <s-stack gap="base">
+            <s-switch
+              id="filteredByTagsIsActive"
+              label={t("settings.filtered_by_tags.enable")}
+              details={t("settings.filtered_by_tags.enable_details")}
+              checked={mainWatch("filteredByTagsIsActive")}
+              onChange={(e) => {
+                setMainValue(
+                  "filteredByTagsIsActive",
+                  e.currentTarget.checked,
+                  {
+                    shouldDirty: true,
+                  },
+                );
+              }}
+            />
+            <s-box
+              borderRadius="base"
+              borderStyle="solid"
+              border="base"
+              overflow="hidden"
+            >
+              <s-table>
+                <s-grid
+                  slot="filters"
+                  gridTemplateColumns="1fr auto auto"
+                  gap="small"
+                  alignItems="center"
+                >
+                  <s-text-field
+                    value={filteredTagValue}
+                    onInput={(e) => setFilteredTagValue(e.currentTarget.value)}
+                    placeholder={t(
+                      "settings.filtered_by_tags.table.headers.value",
+                    )}
+                  />
+                  <s-choice-list
+                    multiple
+                    onChange={(e) => {
+                      setFilteredTagTypes(e.currentTarget.values);
+                    }}
+                  >
+                    <s-choice
+                      value="order"
+                      selected={filteredTagTypes?.includes("order")}
+                    >
+                      {t("settings.filtered_by_tags.types.order")}
+                    </s-choice>
+                    <s-choice
+                      value="customer"
+                      selected={filteredTagTypes?.includes("customer")}
+                    >
+                      {t("settings.filtered_by_tags.types.customer")}
+                    </s-choice>
+                  </s-choice-list>
+                  <s-button
+                    icon="plus"
+                    variant="secondary"
+                    disabled={
+                      filteredTagTypes.length === 0 ||
+                      filteredTagValue.length === 0
+                    }
+                    loading={fetcherFilteredTag.state === "submitting"}
+                    onClick={() =>
+                      handleSubmitCreateFilteredTag(
+                        filteredTagTypes,
+                        filteredTagValue,
+                      )
+                    }
+                  >
+                    {t("global:buttons.add")}
+                  </s-button>
+                </s-grid>
+                <s-table-header-row>
+                  <s-table-header>
+                    {t("settings.filtered_by_tags.table.headers.value")}
+                  </s-table-header>
+                  <s-table-header>
+                    <p className="text-center">{t("settings.filtered_by_tags.table.headers.type")}</p>
+                  </s-table-header>
+                  <s-table-header format="numeric">
+                    {t("settings.filtered_by_tags.table.headers.actions")}
+                  </s-table-header>
+                </s-table-header-row>
+                <s-table-body>
+                  {ffFilteredTags &&
+                    ffFilteredTags.map((filteredTag) => (
+                      <s-table-row key={filteredTag.id}>
+                        <s-table-cell>{filteredTag.value}</s-table-cell>
+                        <s-table-cell>
+                          <s-stack
+                            direction="inline"
+                            gap="small-200"
+                            justifyContent="center"
+                          >
+                          <s-choice-list
+                            multiple
+                            onChange={(e) => {
+                              const currentTags =
+                                mainWatch("filteredTags") || [];
+                              const updatedTags = currentTags.map((tag) =>
+                                tag.id === filteredTag.id
+                                  ? {
+                                      ...tag,
+                                      types: e.currentTarget.values,
+                                    }
+                                  : tag,
+                              );
+                              setMainValue("filteredTags", updatedTags, {
+                                shouldDirty: true,
+                              });
+                            }}
+                          >
+                            <s-choice
+                              value="order"
+                              selected={
+                                mainWatch("filteredTags")
+                                  ?.find((tag) => tag.id === filteredTag.id)
+                                  ?.types.includes("order") || false
+                              }
+                            >
+                              {t("settings.filtered_by_tags.types.order")}
+                            </s-choice>
+                            <s-choice
+                              value="customer"
+                              selected={
+                                mainWatch("filteredTags")
+                                  ?.find((tag) => tag.id === filteredTag.id)
+                                  ?.types.includes("customer") || false
+                              }
+                            >
+                                {t("settings.filtered_by_tags.types.customer")}
+                              </s-choice>
+                            </s-choice-list>
+                          </s-stack>
+                        </s-table-cell>
+                        <s-table-cell>
+                          <s-button
+                            icon="delete"
+                            variant="tertiary"
+                            tone="critical"
+                            onClick={handleSubmitDeleteFilteredTag(
+                              filteredTag.id,
+                            )}
+                          >
+                            {t("global:buttons.delete")}
+                          </s-button>
+                        </s-table-cell>
+                      </s-table-row>
+                    ))}
+                </s-table-body>
+              </s-table>
+            </s-box>
           </s-stack>
         </s-section>
         <s-section heading={t("settings.heading.process_payment_method")}>
@@ -1114,7 +1348,7 @@ export default function NovaPoshtaFfSettings() {
             >
               <s-text>{t("ff_status.curent_organization")}:</s-text>
               {ffSettings?.npOrganization && (
-                <s-chip>{ffSettings?.npOrganization}</s-chip>
+                <s-chip>{ffSettings.npOrganization}</s-chip>
               )}
             </s-stack>
           </s-list-item>
