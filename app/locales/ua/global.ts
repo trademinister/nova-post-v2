@@ -8,6 +8,7 @@ export default {
   cancel: "Скасувати",
   navigating: {
     home: "Головна",
+    orders: "Замовлення",
     settings: "Налаштування",
     plans: "Плани",
     app_settings: "Налаштування додатку",

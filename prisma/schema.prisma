@@ -24,6 +24,20 @@ model Session {
   collaborator  Boolean?    @default(false)
   emailVerified Boolean?    @default(false)
   ffSettings    FFSettings?
+  filterTabs    FilterTab[]
+}
+
+model FilterTab {
+  id        String   @id @default(uuid())
+  title     String
+  sort      String   @default("ORDER_NUMBER,desc")
+  query     String   @default("")
+  filters   Json
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+  created   DateTime @default(now())
+
+  @@unique([sessionId, title], name: "FilterTab_sessionId_title_key")
 }
 
 model FFSettings {
