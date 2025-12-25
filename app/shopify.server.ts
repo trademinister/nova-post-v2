@@ -112,46 +112,6 @@ const shopify = shopifyApp({
       ],
     },
   },
-  webhooks: {
-    LOCATIONS_UPDATE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/locations",
-    },
-    LOCATIONS_CREATE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/locations",
-    },
-    LOCATIONS_DELETE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/locations",
-    },
-    COLLECTIONS_UPDATE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/collections",
-    },
-    COLLECTIONS_CREATE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/collections",
-    },
-    COLLECTIONS_DELETE: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/collections",
-    },
-  },
-  hooks: {
-    afterAuth: async ({ session, admin }) => {
-      if (session) {
-        console.log("afterAuth hook");
-        const subscriptionRes = await admin.graphql(getAppSubscription);
-
-        const subscriptionData = (await subscriptionRes.json()).data;
-
-        // if()
-
-        shopify.registerWebhooks({ session });
-      }
-    },
-  },
 });
 
 export default shopify;
