@@ -17,6 +17,7 @@ import TabRenameModal from "./modals/rename-tab-modal";
 import TabDeleteModal from "./modals/tab-delete-confirmation-modal";
 import TabDublicateModal from "./modals/tab-dublicate-modal";
 import { tabToFormValues } from "../client-functions";
+import TabManager from "./popovers/tab-manager";
 
 type Props = {
   filterTabs: {
@@ -167,6 +168,12 @@ export default function IndexFilters({
   );
 
   useEffect(() => {
+    if (params.get("customerId")) {
+      setIsSearching(true);
+    }
+  }, [params.get("customerId")]);
+
+  useEffect(() => {
     if (!toast) return;
 
     if (toast.status === "error") {
@@ -212,6 +219,11 @@ export default function IndexFilters({
               <s-icon slot="accessory" type="x-circle"></s-icon>
             </s-search-field>
             <s-stack direction="inline" gap="small-500">
+              {params.get("customerId") && (
+                <s-clickable-chip color="subdued">
+                  Пошук за замовником
+                </s-clickable-chip>
+              )}
               {paymentStatusFilterVisibility && (
                 <s-clickable-chip
                   color="subdued"
@@ -342,30 +354,31 @@ export default function IndexFilters({
                   )}
                 </s-clickable-chip>
               )}
-              {!(
-                paymentStatusFilterVisibility &&
-                fulfillmentStatusFilterVisibility &&
-                tagFilterVisibility &&
-                productsFilterVisibility
-              ) && (
-                <s-clickable-chip
-                  color="subdued"
-                  commandFor="add-filter-popover"
-                >
-                  <s-stack direction="inline">
-                    <s-text
-                      color={
-                        state !== "idle" || nav.state !== "idle"
-                          ? "subdued"
-                          : "base"
-                      }
-                    >
-                      Додати фільтр
-                    </s-text>
-                    <s-icon type="plus" />
-                  </s-stack>
-                </s-clickable-chip>
-              )}
+              {!params.get("customerId") &&
+                !(
+                  paymentStatusFilterVisibility &&
+                  fulfillmentStatusFilterVisibility &&
+                  tagFilterVisibility &&
+                  productsFilterVisibility
+                ) && (
+                  <s-clickable-chip
+                    color="subdued"
+                    commandFor="add-filter-popover"
+                  >
+                    <s-stack direction="inline">
+                      <s-text
+                        color={
+                          state !== "idle" || nav.state !== "idle"
+                            ? "subdued"
+                            : "base"
+                        }
+                      >
+                        Додати фільтр
+                      </s-text>
+                      <s-icon type="plus" />
+                    </s-stack>
+                  </s-clickable-chip>
+                )}
 
               {(paymentStatusFilterVisibility ||
                 fulfillmentStatusFilterVisibility ||
@@ -502,6 +515,8 @@ export default function IndexFilters({
             <s-popover id="tag-popover">
               <s-box padding="small-300">
                 <s-text-field
+                  label="Назва тегу"
+                  labelAccessibilityVisibility="exclusive"
                   placeholder="Введіть назву тегу"
                   value={tagFilter}
                   onInput={(e) => {
@@ -562,63 +577,7 @@ export default function IndexFilters({
                       )}
                   </s-stack>
                 </s-button>
-                <s-popover id={`tab-manager-${i}`}>
-                  <s-stack
-                    direction="block"
-                    gap="small-500"
-                    paddingInline="small-300"
-                    paddingBlock="small-300"
-                  >
-                    <s-clickable
-                      padding="small-400"
-                      commandFor={`tab-manager-${i}`}
-                      borderRadius="small"
-                      onClick={() =>
-                        document
-                          .getElementById("rename-tab-modal")
-                          //@ts-ignore
-                          ?.showOverlay()
-                      }
-                    >
-                      <s-stack direction="inline" gap="small-500">
-                        <s-icon type="edit" />
-                        <s-text>Перейменувати</s-text>
-                      </s-stack>
-                    </s-clickable>
-                    <s-clickable
-                      padding="small-400"
-                      commandFor={`tab-manager-${i}`}
-                      borderRadius="small"
-                      onClick={() =>
-                        document
-                          .getElementById("dublicate-tab-modal")
-                          //@ts-ignore
-                          ?.showOverlay()
-                      }
-                    >
-                      <s-stack direction="inline" gap="small-500">
-                        <s-icon type="note-add" />
-                        <s-text>Дублювати</s-text>
-                      </s-stack>
-                    </s-clickable>
-                    <s-clickable
-                      padding="small-400"
-                      commandFor={`tab-manager-${i}`}
-                      borderRadius="small"
-                      onClick={() =>
-                        document
-                          .getElementById("tab-delete-confirmation-modal")
-                          //@ts-ignore
-                          ?.showOverlay()
-                      }
-                    >
-                      <s-stack direction="inline" gap="small-500">
-                        <s-icon type="delete" tone="critical" />
-                        <s-text>Видалити</s-text>
-                      </s-stack>
-                    </s-clickable>
-                  </s-stack>
-                </s-popover>
+                <TabManager i={i} />
               </div>
             ))}
             <s-button

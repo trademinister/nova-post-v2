@@ -130,6 +130,7 @@ export function getEffectiveValues(
       ? (sortDirectionFromTab as "asc" | "desc") || "desc"
       : "desc");
 
+  const customerIdParam = url.searchParams.get("customerId");
   const paymentStatusesParam = url.searchParams.get("paymentStatuses");
   const fulfillmentStatusesParam = url.searchParams.get("fulfillmentStatuses");
   const tagParam = url.searchParams.get("tag");
@@ -137,6 +138,8 @@ export function getEffectiveValues(
 
   const search =
     searchParam ?? (mode === "fallbackToDb" ? (selectedTab.query ?? "") : "");
+
+  const customerId = customerIdParam;
 
   const paymentStatuses =
     paymentStatusesParam !== null && paymentStatusesParam.length > 0
@@ -175,6 +178,7 @@ export function getEffectiveValues(
     search,
     sortKey,
     sortDirection,
+    customerId,
     paymentStatuses,
     fulfillmentStatuses,
     tag,
@@ -188,6 +192,7 @@ export function createVariables({
   search,
   sortDirection,
   sortKey,
+  customerId,
   paymentStatuses,
   fulfillmentStatuses,
   tag,
@@ -200,6 +205,7 @@ export function createVariables({
     reverse: sortDirection === "desc",
     sortKey,
   };
+
   // Пагінація
   variables =
     direction === "previous"
@@ -214,6 +220,9 @@ export function createVariables({
 
   if (search) clauses.push(search);
 
+  if (customerId) {
+    clauses.push(`(customer_id:${customerId})`);
+  }
   const normalizeEnum = (s: string) => s.replace(" ", "_").toLowerCase();
 
   if (paymentStatuses?.length) {
@@ -246,6 +255,7 @@ export function createVariables({
 
 export const STATE_KEYS = [
   "search",
+  "customerId",
   "paymentStatuses",
   "fulfillmentStatuses",
   "products",
@@ -277,6 +287,9 @@ function dbValueForKey(
   switch (key) {
     case "search":
       return normStr(selectedTab.query);
+
+    case "customerId":
+      return normStr("");
 
     case "paymentStatuses":
       return tabFilters.paymentStatuses?.length
@@ -328,6 +341,7 @@ function urlValueForKey(key: StateKey, url: URL): string {
       return normList(raw);
 
     case "search":
+    case "customerId":
     case "tag":
     case "sortKey":
     case "sortDirection":

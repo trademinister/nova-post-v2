@@ -47,3 +47,11 @@ export function tabToFormValues(selectedTab: {
     sortKey,
   };
 }
+
+export function formatIsoWithoutTZ(iso: string) {
+  const [date, time] = iso.replace("Z", "").split("T");
+  const [year, month, day] = date.split("-");
+  const [hour, minute] = time.split(":");
+
+  return `${day}.${month}.${year} ${hour}:${minute}`;
+}

@@ -60,6 +60,7 @@ export type EffectiveValues = {
   sortKey: OrderSortKeys;
   sortDirection: "asc" | "desc";
 
+  customerId?: string | null;
   paymentStatuses?: PaymentStatus[];
   fulfillmentStatuses?: FulfillmentStatus[];
   tag: string;

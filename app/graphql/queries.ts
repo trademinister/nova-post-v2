@@ -23,8 +23,16 @@ export const getShopIsDev = `#graphql
 `;
 
 export const getPaginatedOrders = `#graphql
-query GetPaginatedOrders($first: Int, $last: Int, $after: String, $before: String $query: String, $reverse: Boolean, $sortKey: OrderSortKeys) {
-  orders(first: $first, last: $last, after: $after, before: $before, query: $query, reverse: $reverse, sortKey: $sortKey) {
+query GetPaginatedOrders($first: Int, $last: Int, $after: String, $before: String, $query: String, $reverse: Boolean, $sortKey: OrderSortKeys) {
+  orders(
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+    query: $query
+    reverse: $reverse
+    sortKey: $sortKey
+  ) {
     edges {
       node {
         id
@@ -59,16 +67,21 @@ query GetPaginatedOrders($first: Int, $last: Int, $after: String, $before: Strin
           legacyResourceId
           numberOfOrders
           displayName
-          email
+          defaultEmailAddress {
+            emailAddress
+          }
           defaultAddress {
             phone
           }
         }
-        lineItems(first: 1) {
+        fulfillmentOrders(first: 1, query: "status:'OPEN' OR status:'IN_PROGRESS'") {
           nodes {
-            sku
-            image {
-              url
+            lineItems(first: 1) {
+              nodes {
+                image {
+                  url
+                }
+              }
             }
           }
         }
@@ -79,6 +92,31 @@ query GetPaginatedOrders($first: Int, $last: Int, $after: String, $before: Strin
       endCursor
       hasNextPage
       hasPreviousPage
+    }
+  }
+}
+`;
+
+export const getRemainingProductsForFulfillment = `#graphql
+query getRemainingProductsForFulfillment($id: ID!) {
+  order(id: $id) {
+    fulfillmentOrders(first: 10, query: "status:'OPEN' OR status:'IN_PROGRESS'") {
+      nodes {
+        id
+        lineItems(first: 100) {
+          nodes {
+            remainingQuantity
+            image {
+              url
+            }
+            variant {
+              id
+              displayName
+              sku
+            }
+          }
+        }
+      }
     }
   }
 }

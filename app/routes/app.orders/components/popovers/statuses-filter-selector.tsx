@@ -57,6 +57,7 @@ export default function StatusesFilterSelector({
       >
         {statuses.map(([key, value]) => (
           <s-checkbox
+            key={key}
             label={key}
             checked={selectedStatuses.includes(value)}
             value={value}

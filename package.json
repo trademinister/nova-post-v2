@@ -33,6 +33,7 @@
     "@shopify/shopify-app-react-router": "^1.0.0",
     "@shopify/shopify-app-session-storage-prisma": "^7.0.0",
     "@tailwindcss/vite": "^4.1.17",
+    "debounce": "^3.0.0",
     "i18next": "^25.7.1",
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-fetch-backend": "^7.0.0",
