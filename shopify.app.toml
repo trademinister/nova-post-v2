@@ -2,7 +2,7 @@
 
 client_id = "68b327ae97a3b05646394669c6002db9"
 name = "NovaPoshtaRemake"
-application_url = "https://corner-template-actions-gave.trycloudflare.com"
+application_url = "https://shadow-therapeutic-produced-exploration.trycloudflare.com"
 embedded = true
 handle = "novaposhtaremake"
 
@@ -12,23 +12,33 @@ automatically_update_urls_on_dev = true
 [webhooks]
 api_version = "2026-01"
 
-  [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "/webhooks/app/uninstalled"
 
-  [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
+[[webhooks.subscriptions]]
+topics = ["app/scopes_update"]
+uri = "/webhooks/app/scopes_update"
 
-  [[webhooks.subscriptions]]
-  topics = ["orders/create", "order_transactions/create", "orders/paid"]
-  uri = "arn:aws:events:eu-central-1::event-source/aws.partner/shopify.com/274059100161/np_test_event_bridge"
+[[webhooks.subscriptions]]
+topics = ["locations/update", "locations/create", "locations/delete"]
+uri = "/webhooks/app/locations"
+
+[[webhooks.subscriptions]]
+topics = ["collections/update", "collections/create", "collections/delete"]
+uri = "/webhooks/app/collections"
+
+[[webhooks.subscriptions]]
+topics = ["orders/create", "order_transactions/create", "orders/paid"]
+uri = "arn:aws:events:eu-central-1::event-source/aws.partner/shopify.com/274059100161/np_test_event_bridge"
 
 [access_scopes]
 scopes = "read_orders, write_orders, read_products, write_products, read_inventory, write_inventory read_fulfillments, write_fulfillments, read_customers"
 
 [auth]
-redirect_urls = ["https://corner-template-actions-gave.trycloudflare.com/api/auth"]
+redirect_urls = [
+  "https://shadow-therapeutic-produced-exploration.trycloudflare.com/api/auth",
+]
 
 [pos]
 embedded = false

@@ -31,6 +31,7 @@ export default {
     order_risk_assissemnt_details:
       "Якщо замовлення має рівень ризику, який ви вибрали в чекбоксі, воно не буде виконано",
     order_risk_levels: {
+      title: "Рівні ризику замовлення",
       low: "Низький",
       medium: "Середній",
       high: "Високий",

@@ -34,14 +34,12 @@ export default class NovaPoshtaWms {
 
     const url = this.sandbox ? SANDBOX_URL : PRODUCTION_URL;
 
-    // Загружаем WSDL вручную с Basic Auth
     const wsdlXml = await this.loadWsdl(url);
 
     const options = {
       endpoint: url,
     };
 
-    // Передаем XML напрямую вместо URL
     this.client = await soap.createClientAsync(wsdlXml, options);
     return this.client;
   }

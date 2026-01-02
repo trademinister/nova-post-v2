@@ -31,6 +31,7 @@ export default {
     order_risk_assissemnt_details:
       "If an order has a risk level you selected in the checkbox, it will not be fulfilled",
     order_risk_levels: {
+      title: "Order Risk Levels",
       low: "Low",
       medium: "Medium",
       high: "High",

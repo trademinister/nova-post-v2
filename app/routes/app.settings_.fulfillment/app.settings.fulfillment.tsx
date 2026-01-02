@@ -12,6 +12,10 @@ import {
 } from "react-router";
 import { action, loader } from "./route";
 
+const stripHtmlTags = (html: string): string => {
+  return html.replace(/<[^>]*>/g, "").trim();
+};
+
 export default function NovaPoshtaFfSettings() {
   const { t } = useTranslation(["autoff_settings", "global"]);
   const {
@@ -112,7 +116,7 @@ export default function NovaPoshtaFfSettings() {
         mainReset(mainGetValues());
       }
     }
-  }, [fetcherSaveSettings, mainReset, mainGetValues]);
+  }, [fetcherSaveSettings, mainReset, mainGetValues]);                                                               
 
   useEffect(() => {
     if (fetcherResetSettings && fetcherResetSettings.data?.success) {
@@ -132,10 +136,9 @@ export default function NovaPoshtaFfSettings() {
           locations: [],
           collections: [],
         });
-        navigate(".", { replace: true });
       }
     }
-  }, [fetcherResetSettings, navigate, t, mainReset]);
+  }, [fetcherResetSettings, mainReset]);
 
   useEffect(() => {
     if (fetcherFilteredTag && fetcherFilteredTag.data?.success) {
@@ -145,16 +148,11 @@ export default function NovaPoshtaFfSettings() {
         );
       }
 
-      if (
-        fetcherFilteredTag.data.message === "create_filtered_tag_success" ||
-        fetcherFilteredTag.data.message === "delete_filtered_tag_success"
-      ) {
+      if (fetcherFilteredTag.data.message === "create_filtered_tag_success") {
         setFilteredTagValue("");
-        setFilteredTagTypes(["order"]);
-        navigate(".", { replace: true });
       }
     }
-  }, [fetcherFilteredTag, navigate, t]);
+  }, [fetcherFilteredTag]);
 
   useEffect(() => {
     if (!isDirty) {
@@ -401,6 +399,7 @@ export default function NovaPoshtaFfSettings() {
               }}
             />
             <s-stack gap="small-200">
+              <s-heading>{t("settings.order_risk_levels.title")}</s-heading>
               {["LOW", "MEDIUM", "HIGH"].map((level) => {
                 const getTone = (
                   level: string,
@@ -462,7 +461,7 @@ export default function NovaPoshtaFfSettings() {
               border="base"
               overflow="hidden"
             >
-              <s-table>
+              <s-table loading={fetcherFilteredTag.state === "loading"}>
                 <s-grid
                   slot="filters"
                   gridTemplateColumns="1fr auto auto"
@@ -518,7 +517,9 @@ export default function NovaPoshtaFfSettings() {
                     {t("settings.filtered_by_tags.table.headers.value")}
                   </s-table-header>
                   <s-table-header>
-                    <p className="text-center">{t("settings.filtered_by_tags.table.headers.type")}</p>
+                    <p className="text-center">
+                      {t("settings.filtered_by_tags.table.headers.type")}
+                    </p>
                   </s-table-header>
                   <s-table-header format="numeric">
                     {t("settings.filtered_by_tags.table.headers.actions")}
@@ -535,42 +536,42 @@ export default function NovaPoshtaFfSettings() {
                             gap="small-200"
                             justifyContent="center"
                           >
-                          <s-choice-list
-                            multiple
-                            onChange={(e) => {
-                              const currentTags =
-                                mainWatch("filteredTags") || [];
-                              const updatedTags = currentTags.map((tag) =>
-                                tag.id === filteredTag.id
-                                  ? {
-                                      ...tag,
-                                      types: e.currentTarget.values,
-                                    }
-                                  : tag,
-                              );
-                              setMainValue("filteredTags", updatedTags, {
-                                shouldDirty: true,
-                              });
-                            }}
-                          >
-                            <s-choice
-                              value="order"
-                              selected={
-                                mainWatch("filteredTags")
-                                  ?.find((tag) => tag.id === filteredTag.id)
-                                  ?.types.includes("order") || false
-                              }
+                            <s-choice-list
+                              multiple
+                              onChange={(e) => {
+                                const currentTags =
+                                  mainWatch("filteredTags") || [];
+                                const updatedTags = currentTags.map((tag) =>
+                                  tag.id === filteredTag.id
+                                    ? {
+                                        ...tag,
+                                        types: e.currentTarget.values,
+                                      }
+                                    : tag,
+                                );
+                                setMainValue("filteredTags", updatedTags, {
+                                  shouldDirty: true,
+                                });
+                              }}
                             >
-                              {t("settings.filtered_by_tags.types.order")}
-                            </s-choice>
-                            <s-choice
-                              value="customer"
-                              selected={
-                                mainWatch("filteredTags")
-                                  ?.find((tag) => tag.id === filteredTag.id)
-                                  ?.types.includes("customer") || false
-                              }
-                            >
+                              <s-choice
+                                value="order"
+                                selected={
+                                  mainWatch("filteredTags")
+                                    ?.find((tag) => tag.id === filteredTag.id)
+                                    ?.types.includes("order") || false
+                                }
+                              >
+                                {t("settings.filtered_by_tags.types.order")}
+                              </s-choice>
+                              <s-choice
+                                value="customer"
+                                selected={
+                                  mainWatch("filteredTags")
+                                    ?.find((tag) => tag.id === filteredTag.id)
+                                    ?.types.includes("customer") || false
+                                }
+                              >
                                 {t("settings.filtered_by_tags.types.customer")}
                               </s-choice>
                             </s-choice-list>
@@ -1143,7 +1144,7 @@ export default function NovaPoshtaFfSettings() {
                               <s-heading>{collection.name}</s-heading>
                               {collection.description && (
                                 <s-paragraph color="subdued">
-                                  {collection.description}
+                                  {stripHtmlTags(collection.description)}
                                 </s-paragraph>
                               )}
                             </s-table-cell>
