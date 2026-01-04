@@ -21,6 +21,7 @@ export default function AppPage({}: Props) {
   const { t } = useTranslation(["settings", "global"]);
   const { state } = useRevalidator();
   const nav = useNavigation();
+
   const fetcher = useFetcher<typeof productsFFLoader>({
     key: "products-for-fulfillment",
   });
@@ -37,8 +38,8 @@ export default function AppPage({}: Props) {
   } = useLoaderData<typeof loader>();
 
   const orderNodes = orders?.edges?.map((e) => e.node) ?? [];
-  type OrderNode = (typeof orderNodes)[number];
-  type OrderId = OrderNode["id"];
+  // type OrderNode = (typeof orderNodes)[number];
+  type OrderId = (typeof orderNodes)[number]["id"];
 
   const [selectedOrderIds, setSelectedOrderIds] = useState<OrderId[]>([]);
 
@@ -70,8 +71,6 @@ export default function AppPage({}: Props) {
     params.set("quantity", "4");
     navigate(`?${params.toString()}`);
   }, [JSON.stringify(orders)]);
-
-  console.log(isDirty);
 
   return (
     <s-page heading={t("global:navigating.orders")} inlineSize="large">
@@ -107,7 +106,9 @@ export default function AppPage({}: Props) {
                 <s-table-header></s-table-header>
                 <s-table-header></s-table-header>
                 <s-table-header>
-                  <s-clickable-chip>Роздрукувати</s-clickable-chip>
+                  <s-clickable-chip>
+                    {t("table.headers.print")}
+                  </s-clickable-chip>
                 </s-table-header>
               </>
             ) : (
@@ -122,16 +123,24 @@ export default function AppPage({}: Props) {
                       checked={selectedOrderIds.length === orders?.edges.length}
                       onChange={(e) => toggleAll(e.currentTarget.checked)}
                     />
-                    <s-text>Номер</s-text>
+                    <s-text>{t("table.headers.number")}</s-text>
                   </s-stack>
                 </s-table-header>
-                <s-table-header listSlot="secondary">Замовник</s-table-header>
-                <s-table-header format="currency">Сума</s-table-header>
-                <s-table-header>ТТН</s-table-header>
-                <s-table-header>До відвантаження</s-table-header>
-                <s-table-header>Дії</s-table-header>
-                <s-table-header>Статус виконання</s-table-header>
-                <s-table-header>Статус оплати</s-table-header>{" "}
+                <s-table-header listSlot="secondary">
+                  {t("table.headers.customer")}
+                </s-table-header>
+                <s-table-header format="currency">
+                  {t("table.headers.amount")}
+                </s-table-header>
+                <s-table-header>{t("table.headers.ttn")}</s-table-header>
+                <s-table-header>{t("table.headers.to-ship")}</s-table-header>
+                <s-table-header>{t("table.headers.actions")}</s-table-header>
+                <s-table-header>
+                  {t("table.headers.fulfillment-status")}
+                </s-table-header>
+                <s-table-header>
+                  {t("table.headers.payment-status")}
+                </s-table-header>{" "}
               </>
             )}
           </s-table-header-row>
@@ -218,7 +227,7 @@ export default function AppPage({}: Props) {
                   <s-table-cell>
                     {node.displayFulfillmentStatus === "FULFILLED" ||
                     node.currentSubtotalLineItemsQuantity === 0 ? (
-                      <s-text color="subdued">Замовлення завершено</s-text>
+                      <s-text color="subdued">{t("order-completed")}</s-text>
                     ) : (
                       <s-clickable commandFor={`products-popover-${i}`}>
                         <s-stack direction="inline" alignItems="center">
@@ -236,8 +245,8 @@ export default function AppPage({}: Props) {
                               <s-thumbnail
                                 size="small"
                                 src={
-                                  node.fulfillmentOrders.nodes[0].lineItems
-                                    .nodes[0].image?.url ?? undefined
+                                  node.fulfillmentOrders?.nodes?.[0]?.lineItems
+                                    ?.nodes?.[0]?.image?.url ?? undefined
                                 }
                               />
                               <div
@@ -250,10 +259,8 @@ export default function AppPage({}: Props) {
                                 }}
                               >
                                 <s-badge>
-                                  {
-                                    node.fulfillmentOrders.nodes[0].lineItems
-                                      .nodes.length
-                                  }
+                                  {node.fulfillmentOrders?.nodes?.[0]?.lineItems
+                                    ?.nodes?.length ?? 0}
                                 </s-badge>
                               </div>
                             </div>
@@ -289,12 +296,14 @@ export default function AppPage({}: Props) {
                         interestFor="connect-shipping-tooltip"
                       />
                     </s-button-group>
-                    <s-tooltip id="print-tooltip">Друк маркувань</s-tooltip>
+                    <s-tooltip id="print-tooltip">
+                      {t("tooltip.print")}
+                    </s-tooltip>
                     <s-tooltip id="create-shipping-tooltip">
-                      Створити відправлення
+                      {t("tooltip.create-shipping")}
                     </s-tooltip>
                     <s-tooltip id="connect-shipping-tooltip">
-                      Прив'язати відправлення
+                      {t("tooltip.connect-shipping")}
                     </s-tooltip>
                   </s-table-cell>
                   <s-table-cell>

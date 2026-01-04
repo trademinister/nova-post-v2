@@ -42,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 function getItemsToFulfillWithImages(
-  orderData: GetRemainingProductsForFulfillmentQuery | undefined,
+  orderData: GetRemainingProductsForFulfillmentQuery | undefined
 ): ItemToFulfill[] {
   const fulfillmentOrders: FulfillmentOrderNode[] =
     orderData?.order?.fulfillmentOrders?.nodes ?? [];
