@@ -137,36 +137,122 @@ export default function Settings() {
     <s-page heading={t("page_title")}>
       <s-box padding="base">
         <s-stack gap="base">
-          <s-grid gridTemplateColumns="repeat(4, 1fr)" gap="base">
-            <s-grid-item>
-              <SettingBlock
-                iconName="settings"
-                title={t("settings_box.settings.title")}
-                links={[
-                  {
-                    id: "1",
-                    name: t("settings_box.settings.links.settings"),
-                    url: "app",
-                  },
-                ]}
-              />
-            </s-grid-item>
-            <s-grid-item>
-              <SettingBlock
-                iconName="settings"
-                title={t("settings_box.nova_poshta.fulfillment_settings.title")}
-                links={[
-                  {
-                    id: "1",
-                    name: t(
-                      "settings_box.nova_poshta.fulfillment_settings.links.settings",
-                    ),
-                    url: "fulfillment",
-                  },
-                ]}
-              />
-            </s-grid-item>
-          </s-grid>
+          <s-stack gap="base">
+            <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+              {t("subtitle.app")}
+            </div>
+            <s-grid gridTemplateColumns="repeat(4, 1fr)" gap="base">
+              <s-grid-item>
+                <SettingBlock
+                  iconName="settings"
+                  title={t("settings_box.settings.title")}
+                  links={[
+                    {
+                      id: "1",
+                      name: t("settings_box.settings.links.settings"),
+                      url: "app",
+                    },
+                  ]}
+                />
+              </s-grid-item>
+            </s-grid>
+          </s-stack>
+          <s-stack gap="base">
+            <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+              {t("subtitle.shipping")}
+            </div>
+            <s-grid gridTemplateColumns="repeat(4, 1fr)" gap="base">
+              <s-grid-item>
+                <SettingBlock
+                  iconName="settings"
+                  title={t(
+                    "settings_box.nova_poshta.domestic_shipping_settings.title",
+                  )}
+                  links={[
+                    {
+                      id: "1",
+                      name: t(
+                        "settings_box.nova_poshta.domestic_shipping_settings.links.settings",
+                      ),
+                      url: "domestic-shipping-settings",
+                    },
+                    {
+                      id: "2",
+                      name: t(
+                        "settings_box.nova_poshta.domestic_shipping_settings.links.methods_settings",
+                      ),
+                      url: "domestic-delivery-methods",
+                    },
+                  ]}
+                />
+              </s-grid-item>
+              <s-grid-item>
+                <SettingBlock
+                  iconName="settings"
+                  title={t(
+                    "settings_box.nova_poshta.international_shipping_settings.title",
+                  )}
+                  links={[
+                    {
+                      id: "1",
+                      name: t(
+                        "settings_box.nova_poshta.international_shipping_settings.links.settings",
+                      ),
+                      url: "app",
+                    },
+                    {
+                      id: "2",
+                      name: t(
+                        "settings_box.nova_poshta.domestic_shipping_settings.links.methods_settings",
+                      ),
+                      url: "app",
+                    },
+                  ]}
+                />
+              </s-grid-item>
+              <s-grid-item>
+                <SettingBlock
+                  iconName="settings"
+                  title={t(
+                    "settings_box.nova_poshta.global_shipping_settings.title",
+                  )}
+                  links={[
+                    {
+                      id: "1",
+                      name: t(
+                        "settings_box.nova_poshta.global_shipping_settings.links.settings",
+                      ),
+                      url: "app",
+                    },
+                    {
+                      id: "2",
+                      name: t(
+                        "settings_box.nova_poshta.domestic_shipping_settings.links.methods_settings",
+                      ),
+                      url: "app",
+                    },
+                  ]}
+                />
+              </s-grid-item>
+              <s-grid-item>
+                <SettingBlock
+                  iconName="settings"
+                  title={t(
+                    "settings_box.nova_poshta.fulfillment_settings.title",
+                  )}
+                  links={[
+                    {
+                      id: "1",
+                      name: t(
+                        "settings_box.nova_poshta.fulfillment_settings.links.settings",
+                      ),
+                      url: "fulfillment",
+                    },
+                  ]}
+                />
+              </s-grid-item>
+            </s-grid>
+          </s-stack>
         </s-stack>
       </s-box>
     </s-page>

@@ -48,11 +48,23 @@ export type GetRemainingProductsForFulfillmentQuery = { order?: AdminTypes.Maybe
           )> } }
       )> } }> };
 
+export type GetDeliveryProfilesQueryVariables = AdminTypes.Exact<{ [key: string]: never; }>;
+
+
+export type GetDeliveryProfilesQuery = { deliveryProfiles: { nodes: Array<(
+      Pick<AdminTypes.DeliveryProfile, 'name'>
+      & { profileLocationGroups: Array<{ locationGroupZones: { nodes: Array<{ zone: (
+              Pick<AdminTypes.DeliveryZone, 'name'>
+              & { countries: Array<Pick<AdminTypes.DeliveryCountry, 'name'>> }
+            ), methodDefinitions: { nodes: Array<Pick<AdminTypes.DeliveryMethodDefinition, 'name'>> } }> } }> }
+    )> } };
+
 interface GeneratedQueryTypes {
   "#graphql\n    query CurrentAppInstallation {\n        currentAppInstallation {\n            id\n            activeSubscriptions {\n                id\n                name\n                status\n                test\n            }\n        }\n    }\n": {return: CurrentAppInstallationQuery, variables: CurrentAppInstallationQueryVariables},
   "#graphql\n    query GetShopIsDev {\n        shop {\n            plan{\n                partnerDevelopment\n            }\n        }\n    }\n": {return: GetShopIsDevQuery, variables: GetShopIsDevQueryVariables},
   "#graphql\nquery GetPaginatedOrders($first: Int, $last: Int, $after: String, $before: String, $query: String, $reverse: Boolean, $sortKey: OrderSortKeys) {\n  orders(\n    first: $first\n    last: $last\n    after: $after\n    before: $before\n    query: $query\n    reverse: $reverse\n    sortKey: $sortKey\n  ) {\n    edges {\n      node {\n        id\n        name\n        createdAt\n        currencyCode\n        legacyResourceId\n        cancelledAt\n        tags\n        note\n        displayFinancialStatus\n        displayFulfillmentStatus\n        currentSubtotalLineItemsQuantity\n        currentTotalWeight\n        shippingAddress {\n          countryCodeV2\n        }\n        shippingLine {\n          code\n        }\n        currentTotalPriceSet {\n          shopMoney {\n            amount\n          }\n          presentmentMoney {\n            amount\n            currencyCode\n          }\n        }\n        phone\n        customer {\n          legacyResourceId\n          numberOfOrders\n          displayName\n          defaultEmailAddress {\n            emailAddress\n          }\n          defaultAddress {\n            phone\n          }\n        }\n        fulfillmentOrders(first: 1, query: \"status:'OPEN' OR status:'IN_PROGRESS'\") {\n          nodes {\n            lineItems(first: 1) {\n              nodes {\n                image {\n                  url\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    pageInfo {\n      startCursor\n      endCursor\n      hasNextPage\n      hasPreviousPage\n    }\n  }\n}\n": {return: GetPaginatedOrdersQuery, variables: GetPaginatedOrdersQueryVariables},
   "#graphql\nquery getRemainingProductsForFulfillment($id: ID!) {\n  order(id: $id) {\n    fulfillmentOrders(first: 10, query: \"status:'OPEN' OR status:'IN_PROGRESS'\") {\n      nodes {\n        id\n        lineItems(first: 100) {\n          nodes {\n            remainingQuantity\n            image {\n              url\n            }\n            variant {\n              id\n              displayName\n              sku\n            }\n          }\n        }\n      }\n    }\n  }\n}\n": {return: GetRemainingProductsForFulfillmentQuery, variables: GetRemainingProductsForFulfillmentQueryVariables},
+  "#graphql\nquery GetDeliveryProfiles {\n  deliveryProfiles(first: 5) {\n    nodes {\n      name\n      profileLocationGroups {\n        locationGroupZones(first: 25) {\n          nodes {\n            zone {\n              countries {\n                name\n              }\n              name\n            }\n            methodDefinitions(first: 10) {\n              nodes {\n                name\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n": {return: GetDeliveryProfilesQuery, variables: GetDeliveryProfilesQueryVariables},
 }
 
 interface GeneratedMutationTypes {

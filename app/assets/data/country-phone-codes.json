@@ -1,0 +1,21 @@
+{
+  "UA": { "code": "+380", "phoneLength": 9 },
+  "MD": { "code": "+373", "phoneLength": 8 },
+  "PL": { "code": "+48", "phoneLength": 9 },
+  "LT": { "code": "+370", "phoneLength": 8 },
+  "CZ": { "code": "+420", "phoneLength": 9 },
+  "RO": { "code": "+40", "phoneLength": 9 },
+  "DE": { "code": "+49", "phoneLength": 10 },
+  "SK": { "code": "+421", "phoneLength": 9 },
+  "EE": { "code": "+372", "phoneLength": 8 },
+  "LV": { "code": "+371", "phoneLength": 8 },
+  "HU": { "code": "+36", "phoneLength": 9 },
+  "IT": { "code": "+39", "phoneLength": 9 },
+  "GB": { "code": "+44", "phoneLength": 10 },
+  "ES": { "code": "+34", "phoneLength": 9 },
+  "FR": { "code": "+33", "phoneLength": 9 },
+  "AT": { "code": "+43", "phoneLength": 9 },
+  "NL": { "code": "+31", "phoneLength": 9 },
+  "FI": { "code": "+358", "phoneLength": 8 },
+  "US": { "code": "+1", "phoneLength": 10 }
+}

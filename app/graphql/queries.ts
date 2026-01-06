@@ -121,3 +121,30 @@ query getRemainingProductsForFulfillment($id: ID!) {
   }
 }
 `;
+
+export const getDeliveryProfiles = `#graphql
+query GetDeliveryProfiles {
+  deliveryProfiles(first: 5) {
+    nodes {
+      name
+      profileLocationGroups {
+        locationGroupZones(first: 25) {
+          nodes {
+            zone {
+              countries {
+                name
+              }
+              name
+            }
+            methodDefinitions(first: 10) {
+              nodes {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
