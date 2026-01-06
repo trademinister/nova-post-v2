@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import {
   Customer,
@@ -26,6 +27,7 @@ type Props = {
 
 export default function CustomerPopover({ customer, i }: Props) {
   const navigate = useNavigate();
+  const { t } = useTranslation(["global"]);
 
   return (
     <s-popover id={`customer-popover-${i}`}>
@@ -47,7 +49,7 @@ export default function CustomerPopover({ customer, i }: Props) {
             icon="clipboard"
             onClick={() => {
               navigator.clipboard.writeText(customer?.displayName!);
-              shopify.toast.show("Ім'я та прізвище скопійовано");
+              shopify.toast.show(t("popovers.customer-popover.name-copied"));
             }}
           />
         </s-stack>
@@ -60,7 +62,7 @@ export default function CustomerPopover({ customer, i }: Props) {
                 navigate(`?customerId=${customer?.legacyResourceId}`)
               }
             >{`${customer?.numberOfOrders} ${
-              Number(customer?.numberOfOrders) >= 5 ? "замовлень" : "замовлення"
+              Number(customer?.numberOfOrders) >= 5 ? t("orders.plural") : t("orders.singular")
             }`}</s-link>
           ) : (
             <s-link
@@ -68,7 +70,7 @@ export default function CustomerPopover({ customer, i }: Props) {
                 navigate(`?customerId=${customer?.legacyResourceId}`)
               }
             >{`${customer?.numberOfOrders} ${
-              Number(customer?.numberOfOrders) >= 5 ? "замовлень" : "замовлення"
+              Number(customer?.numberOfOrders) >= 5 ? t("orders.plural") : t("orders.singular")
             }`}</s-link>
           )}
         </s-stack>
@@ -88,7 +90,7 @@ export default function CustomerPopover({ customer, i }: Props) {
                 navigator.clipboard.writeText(
                   customer?.defaultEmailAddress?.emailAddress!,
                 );
-                shopify.toast.show("Пошту скопійовано");
+                shopify.toast.show(t("popovers.customer-popover.email-copied"));
               }}
             />
           </s-stack>
@@ -108,7 +110,7 @@ export default function CustomerPopover({ customer, i }: Props) {
               onClick={() => {
                 const phone = customer?.defaultAddress?.phone || customer.phone;
                 navigator.clipboard.writeText(phone!);
-                shopify.toast.show("Номер телфону скопійовано");
+                shopify.toast.show(t("popovers.customer-popover.phone-copied"));
               }}
             />
           </s-stack>

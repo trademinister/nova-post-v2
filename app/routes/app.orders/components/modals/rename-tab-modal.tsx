@@ -1,5 +1,6 @@
 import { action } from "app/routes/app._index/route";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useFetcher, useSubmit } from "react-router";
 
 type Props = {
@@ -17,6 +18,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
   const [title, setTitle] = useState(tabTitle);
   const [titleError, setTitleError] = useState("");
   const modalRef = useRef(null);
+  const { t } = useTranslation(["global"]);
 
   useEffect(() => {
     if (toast?.status === "success") {
@@ -25,7 +27,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
       shopify.toast.show(toast.message);
     } else if (toast?.status === "error") {
       setTitleError(toast.message);
-      shopify.toast.show("Виникла помилка", { isError: true });
+      shopify.toast.show(t("errors.general"), { isError: true });
     }
   }, [toast]);
 
@@ -37,7 +39,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
     <s-modal
       ref={modalRef}
       id="rename-tab-modal"
-      heading="Перейманувати вкладку"
+      heading={t("modals.rename-tab.heading")}
       onHide={() => {
         setTitle(tabTitle);
         setTitleError("");
@@ -53,7 +55,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
             value={title}
             onInput={(e) => {
               if (!e.currentTarget.value) {
-                setTitleError("Поле не може бути порожнім");
+                setTitleError(t("errors.field_required"));
               } else {
                 setTitleError("");
               }
@@ -68,7 +70,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
         commandFor="rename-tab-modal"
         command="--hide"
       >
-        Скасувати
+        {t("buttons.cancel")}
       </s-button>
       <s-button
         slot="primary-action"
@@ -82,7 +84,7 @@ export default function TabRenameModal({ tabTitle, toast }: Props) {
           )
         }
       >
-        Зберегти
+        {t("buttons.save")}
       </s-button>
     </s-modal>
   );

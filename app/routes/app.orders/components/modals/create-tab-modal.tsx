@@ -1,5 +1,6 @@
 import { action } from "app/routes/app._index/route";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useFetcher, useSubmit } from "react-router";
 
 type Props = {
@@ -16,15 +17,16 @@ export default function TabCreateModal({ toast }: Props) {
   const [title, setTitle] = useState("");
   const [titleError, setTitleError] = useState("");
   const modalRef = useRef(null);
+  const {t} = useTranslation(["global"])
 
   useEffect(() => {
     if (toast?.status === "success") {
-      //@ts-ignore
+      // @ts-ignore
       modalRef?.current?.hideOverlay();
       shopify.toast.show(toast.message);
     } else if (toast?.status === "error") {
       setTitleError(toast.message);
-      shopify.toast.show("Виникла помилка", { isError: true });
+      shopify.toast.show(t("errors.general"), { isError: true });
     }
   }, [toast]);
 
@@ -32,7 +34,7 @@ export default function TabCreateModal({ toast }: Props) {
     <s-modal
       ref={modalRef}
       id="create-tab-modal"
-      heading="Створити вкладку"
+      heading={t("modals.create-tab.heading")}
       onHide={() => {
         setTitle("");
         setTitleError("");
@@ -69,7 +71,7 @@ export default function TabCreateModal({ toast }: Props) {
           )
         }
       >
-        Зберегти
+        {t("buttons.save")}
       </s-button>
     </s-modal>
   );
