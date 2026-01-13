@@ -26,6 +26,7 @@ model Session {
   emailVerified Boolean?    @default(false)
   ffSettings    FFSettings?
   filterTabs    FilterTab[]
+  ffLogs        FFLogs[]
 }
 
 model FilterTab {
@@ -79,6 +80,8 @@ model FFLocations {
   remainsIsActive      Boolean     @default(false)
   ffSettingsId         String?
   ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
+
+  @@index([ffSettingsId, locationId])
 }
 
 model FFCollections {
@@ -91,6 +94,8 @@ model FFCollections {
   remainsIsActive      Boolean     @default(false)
   ffSettingsId         String?
   ffSettings           FFSettings? @relation(fields: [ffSettingsId], references: [id])
+
+  @@index([ffSettingsId, collectionId])
 }
 
 model FFPaymentMethods {
@@ -99,4 +104,27 @@ model FFPaymentMethods {
   statuses     String[]    @default([])
   ffSettingsId String?
   ffSettings   FFSettings? @relation(fields: [ffSettingsId], references: [id])
+}
+
+//logs
+
+model FFLogs {
+  id        String   @id @default(uuid())
+  orderId   String
+  message   String
+  status    String
+  created   DateTime @default(now())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+
+  @@index([orderId, created])
+}
+
+//news
+
+model FFNews {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  created     DateTime @default(now())
 }

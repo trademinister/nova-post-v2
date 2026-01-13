@@ -1,3 +1,5 @@
+//process orders __ обробка замовлень
+
 export default {
   settings: {
     heading: {
@@ -5,7 +7,7 @@ export default {
       order_risk_assissemnt: "Оцінка ризику замовлення",
       filtered_by_tags: "Фільтр за тегами",
       process_payment_method: "Методи оплати",
-      fulfillment_settings: "Налаштування виконання",
+      fulfillment_settings: "Обробка замовлень",
       tools: "Інструменти",
     },
     ff_enable: "Увімкнути автоматичне виконання",
@@ -97,6 +99,7 @@ export default {
     enabled: "Увімкнено",
     disabled: "Вимкнено",
     curent_organization: "Поточна організація",
+    no_organization: "Немає організації",
     toast: {
       success: {
         login_ff_success: "Успішно ввійшли в Nova Poshta",

@@ -20,6 +20,7 @@ import {
   updateFilteredTag,
 } from "~/routes/.server/ffsettings";
 import NovaPoshtaWms from "~/api/novaPoshtaWms";
+import NovaPoshta from "~/api/novaPoshtaV2";
 
 export { NovaPoshtaFfSettings as default };
 

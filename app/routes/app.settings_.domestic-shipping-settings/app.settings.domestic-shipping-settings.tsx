@@ -74,7 +74,7 @@ export default function DomesticShippingSettingsPage({}: Props) {
   console.log(watchedCommisionPayer);
 
   return (
-    <s-page heading="Внутрішні методи доставки" inlineSize="large">
+    <s-page heading="Внутрішні методи доставки" inlineSize="base">
       <s-stack gap="base">
         <s-grid
           gridTemplateColumns="repeat(12, 1fr)"
