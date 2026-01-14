@@ -13,12 +13,16 @@ import {
 } from "app/routes/app.settings_.domestic-shipping-settings/types";
 import PhoneTextField from "./components/phone-text-field";
 import CreateBoxModal from "./components/modals/create-box-modal";
-import BoxModal from "./components/modals/box-modal";
-import ExtendedBoxModal from "./components/modals/extended-box-modal";
+import UniformPackageModal from "./components/modals/uniform-package-modal";
+import ExtendedPackagingModal from "./components/modals/extended-packaging-modal";
+import Autocomplete from "./components/autocomplete";
+import { useTranslation } from "react-i18next";
 
 type Props = {};
 
 export default function DomesticShippingSettingsPage({}: Props) {
+  const { t } = useTranslation(["shipping_settings", "global"]);
+
   const {
     watch,
     setValue,
@@ -30,24 +34,45 @@ export default function DomesticShippingSettingsPage({}: Props) {
     defaultValues: {
       shipmentType: "Cargo",
       packingType: "extended",
+      uniformPackage: {
+        id: "8f49720a-cd66-442f-9b85-9dcce7e34f8b",
+        description: "Коробка 4 кг пласка",
+        length: "53.5",
+        width: "38",
+        height: "7.5",
+        volumetricWeight: "4",
+        external: false,
+      },
       deliveryPaymentType: "Cash",
       deliveryPayerType: "Sender",
       additionalService: "",
       declaredPriceAmount: "0",
       comissionPayer: "Recipient",
       shipperType: "Legal entity",
-      shippingType: "Door",
+      shippingType: "Warehouse",
+      sender: null,
+      settlement: { label: "Київ", value: "49gerjgl32" },
+      warehouse: {
+        label: "Відділення №1 вул. Пирогівський шлях, 135",
+        value: "68549ferkojge",
+      },
+      street: null,
     },
   });
 
-  const watchedShipmentType = watch("shipmentType");
-  const watchedPackingType = watch("packingType");
-  const watchedDeliveryPaymentType = watch("deliveryPaymentType");
-  const watchedShipperType = watch("shipperType");
-  const watchedShippingType = watch("shippingType");
-  const watchedAdditionalService = watch("additionalService");
-  const watchedCommisionPayer = watch("comissionPayer");
-  const watchedDeclaredPriceAmount = watch("declaredPriceAmount");
+  const shipmentType = watch("shipmentType");
+  const packingType = watch("packingType");
+  const uniformPackage = watch("uniformPackage");
+  const deliveryPaymentType = watch("deliveryPaymentType");
+  const shipperType = watch("shipperType");
+  const shippingType = watch("shippingType");
+  const additionalService = watch("additionalService");
+  const commisionPayer = watch("comissionPayer");
+  const declaredPriceAmount = watch("declaredPriceAmount");
+  const sender = watch("sender");
+  const settlement = watch("settlement");
+  const warehouse = watch("warehouse");
+  const street = watch("street");
 
   useEffect(() => {
     if (isDirty) {
@@ -57,568 +82,689 @@ export default function DomesticShippingSettingsPage({}: Props) {
     }
   }, [isDirty]);
 
-  const shipmentChoices: ShipmentType[] = [
-    "Parcel",
-    "Cargo",
-    "Documents",
-    "TiresWheels",
-  ];
-
-  const onShipmentTypeChange = (e: any) => {
-    const value = e.currentTarget.values?.[0] as ShipmentType | undefined;
-    if (!value) return;
-
-    setValue("shipmentType", value, { shouldDirty: true });
-  };
-
-  console.log(watchedCommisionPayer);
-
   return (
-    <s-page heading="Внутрішні методи доставки" inlineSize="large">
-      <s-stack gap="base">
-        <s-grid
-          gridTemplateColumns="repeat(12, 1fr)"
-          gap="base"
-          gridTemplateRows="auto auto"
-        >
-          <s-grid-item gridColumn="span 9" gridRow="span 1">
-            <s-section heading="Пакування">
-              <s-stack direction="block" gap="base">
-                <s-grid gridTemplateColumns="repeat(14, 1fr)" gap="none">
-                  <s-grid-item gridColumn="span 12" gridRow="span 1">
-                    <s-switch
-                      label={"Розширене пакування"}
-                      checked={watchedPackingType === "extended"}
-                      value={watchedPackingType}
-                      onChange={(e) => {
-                        if (watchedPackingType === "default") {
-                          setValue("packingType", "extended", {
-                            shouldDirty: true,
-                          });
-                        } else {
-                          setValue("packingType", "default", {
-                            shouldDirty: true,
-                          });
-                        }
-                      }}
-                    />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 8">
-                    <s-grid
-                      gridTemplateColumns="repeat(14, 1fr)"
-                      gap="small-300"
-                    >
-                      <>
-                        <s-grid-item gridColumn="span 9">
-                          <s-stack direction="block" gap="none">
-                            <div style={{ visibility: "hidden" }}>
-                              <s-text accessibilityVisibility="hidden">
-                                {watchedPackingType === "default"
-                                  ? "Загальне пакування"
-                                  : "Розширене пакування"}
-                              </s-text>
-                            </div>
-                            <s-clickable
-                              border="base"
-                              padding="small-300"
-                              background="base"
-                              borderRadius="small"
-                              commandFor={
-                                watchedPackingType === "default"
-                                  ? "box-modal"
-                                  : "extended-box-modal"
-                              }
-                            >
-                              <s-text>
-                                {watchedPackingType === "default"
-                                  ? "Обрати пакування"
-                                  : "Налаштувати пакування"}
-                              </s-text>
-                            </s-clickable>
-                          </s-stack>
-                        </s-grid-item>
-                        <s-stack direction="inline" alignContent="safe end">
-                          <s-grid-item gridColumn="span 2">
-                            <s-box paddingBlockEnd="small-400">
-                              <s-button
-                                icon="plus"
-                                commandFor="create-box-modal"
-                              />
-                            </s-box>
-                          </s-grid-item>
-                        </s-stack>
-                      </>
-                    </s-grid>
-                  </s-grid-item>
-                </s-grid>
-                <s-box inlineSize="280px">
-                  <s-text-area label="Опис" autocomplete="off" />
-                </s-box>
-                <s-switch
-                  label="Додавати артикули до відправлення"
-                  details="Додавати артикули до опису та додаткової інформації про відправлення.
-                  Увага! Якщо опис залишити порожнім, система автоматично заповнить його даними з замовлення та додасть артикули."
-                />
-              </s-stack>
-            </s-section>
-          </s-grid-item>
-          <s-grid-item gridColumn="span 3" gridRow="span 2">
-            <s-section heading="Відправлення">
-              <s-stack direction="inline" gap="base">
-                <s-choice-list
-                  label="Тип відправлення"
-                  name="shipment-type-choice-list"
-                  onChange={(e) => {
-                    const value = e.currentTarget.values[0] as ShipmentType;
-                    setValue("shipmentType", value, {
-                      shouldDirty: true,
-                    });
-                  }}
-                >
-                  <s-choice
-                    value="Parcel"
-                    defaultSelected={watchedShipmentType === "Parcel"}
-                  >
-                    Посилка
-                  </s-choice>
-                  <s-choice
-                    value="Cargo"
-                    defaultSelected={watchedShipmentType === "Cargo"}
-                  >
-                    Вантаж
-                  </s-choice>
-                  <s-choice
-                    value="Documents"
-                    defaultSelected={watchedShipmentType === "Documents"}
-                  >
-                    Документи
-                  </s-choice>
-                  <s-choice
-                    value="TiresWheels"
-                    defaultSelected={watchedShipmentType === "TiresWheels"}
-                  >
-                    Шини/Диски
-                  </s-choice>
-                  <s-choice
-                    value="Pallet"
-                    defaultSelected={watchedShipmentType === "Pallet"}
-                  >
-                    Палети
-                  </s-choice>
-                </s-choice-list>
-                <s-stack direction="block" gap="base">
-                  <s-choice-list
-                    label="Спосіб оплати за доставку"
-                    name="delivery-payment-type-choice-list"
-                    onChange={(e) => {
-                      const value = e.currentTarget
-                        .values[0] as DeliveryPaymentType;
-                      setValue("deliveryPaymentType", value, {
-                        shouldDirty: true,
-                      });
-                    }}
-                  >
-                    <s-choice
-                      value="Cash"
-                      defaultSelected={watchedDeliveryPaymentType === "Cash"}
-                    >
-                      Готівка
-                    </s-choice>
-                    <s-choice
-                      value="Cashless"
-                      defaultSelected={
-                        watchedDeliveryPaymentType === "Cashless"
-                      }
-                    >
-                      Безготівковий
-                    </s-choice>
-                  </s-choice-list>
-                  <s-choice-list
-                    label="Платник за доставку"
-                    name="delivery-payment-type-choice-list"
-                    onChange={(e) => {
-                      const value = e.currentTarget
-                        .values[0] as DeliveryPaymentType;
-                      setValue("deliveryPaymentType", value, {
-                        shouldDirty: true,
-                      });
-                    }}
-                  >
-                    <s-choice
-                      value="Sender"
-                      defaultSelected={watchedDeliveryPaymentType === "Cash"}
-                    >
-                      Відправник
-                    </s-choice>
-                    <s-choice
-                      value="Recipient"
-                      defaultSelected={
-                        watchedDeliveryPaymentType === "Cashless"
-                      }
-                    >
-                      Отримувач
-                    </s-choice>
-                    <s-choice
-                      value="ThirdPerson"
-                      defaultSelected={
-                        watchedDeliveryPaymentType === "Cashless"
-                      }
-                    >
-                      Третя особа
-                    </s-choice>
-                  </s-choice-list>
-                </s-stack>
-              </s-stack>
-            </s-section>
-          </s-grid-item>
-          <s-grid-item gridColumn="span 9" gridRow="span 2">
-            <s-section heading="Бажані додаткові послуги" padding="base">
-              <s-stack direction="block" gap="small-300">
-                <s-stack direction="inline" gap="base">
-                  <s-checkbox
-                    label="Контроль оплати"
-                    checked={watchedAdditionalService === "PaymentControl"}
-                    value={watchedAdditionalService}
-                    onChange={(e) => {
-                      if (watchedAdditionalService === "") {
-                        setValue("additionalService", "PaymentControl", {
-                          shouldDirty: true,
-                        });
-                      } else if (
-                        watchedAdditionalService !== "PaymentControl"
-                      ) {
-                        setValue("additionalService", "PaymentControl", {
-                          shouldDirty: true,
-                        });
-                      } else {
-                        setValue("additionalService", "", {
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                  />
-                  <s-checkbox
-                    label="Грошовий переказ"
-                    checked={watchedAdditionalService === "MoneyTransfer"}
-                    value={watchedAdditionalService}
-                    onChange={(e) => {
-                      if (watchedAdditionalService === "") {
-                        setValue("additionalService", "MoneyTransfer", {
-                          shouldDirty: true,
-                        });
-                      } else if (watchedAdditionalService !== "MoneyTransfer") {
-                        setValue("additionalService", "MoneyTransfer", {
-                          shouldDirty: true,
-                        });
-                      } else {
-                        setValue("additionalService", "", {
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                  />
-                  <s-checkbox
-                    label="Оголошена вартість"
-                    checked={watchedAdditionalService === "DeclaredPrice"}
-                    value={watchedAdditionalService}
-                    onChange={(e) => {
-                      if (watchedAdditionalService === "") {
-                        setValue("additionalService", "DeclaredPrice", {
-                          shouldDirty: true,
-                        });
-                      } else if (watchedAdditionalService !== "DeclaredPrice") {
-                        setValue("additionalService", "DeclaredPrice", {
-                          shouldDirty: true,
-                        });
-                      } else {
-                        setValue("additionalService", "", {
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                  />
-                </s-stack>
-                {watchedAdditionalService === "MoneyTransfer" ? (
-                  <s-stack direction="block" gap="small-500">
-                    <s-text>Сплачує комісію за переказ</s-text>
-                    <s-stack
-                      direction="inline"
-                      gap="small-200"
-                      alignItems="center"
-                    >
-                      <s-text>Отримувач</s-text>
-                      <s-switch label="Відправник" />
-                      {/* <s-checkbox
-                        label="Отримувач"
-                        checked={watchedCommisionPayer === "Recipient"}
-                        value={watchedCommisionPayer}
-                        onChange={(e) => {
-                          if (watchedCommisionPayer !== "Recipient") {
-                            setValue("comissionPayer", "Recipient", {
-                              shouldDirty: true,
-                            });
-                          } else {
-                            return;
-                          }
-                        }}
-                      />
-                      <s-checkbox
-                        label="Відправник"
-                        checked={watchedCommisionPayer === "Sender"}
-                        value={watchedCommisionPayer}
-                        onChange={(e) => {
-                          if (watchedCommisionPayer !== "Sender") {
-                            setValue("comissionPayer", "Sender", {
-                              shouldDirty: true,
-                            });
-                          } else {
-                            return;
-                          }
-                        }}
-                      /> */}
-                    </s-stack>
-                  </s-stack>
-                ) : (
-                  watchedAdditionalService === "DeclaredPrice" && (
-                    <s-box inlineSize="200px">
-                      <s-money-field
-                        label="Ціна"
-                        value={watchedDeclaredPriceAmount}
-                        onChange={(e) =>
-                          setValue(
-                            "declaredPriceAmount",
-                            e.currentTarget.value,
-                            { shouldDirty: true },
-                          )
-                        }
-                        autocomplete="off"
-                      ></s-money-field>
-                    </s-box>
-                  )
-                )}
-              </s-stack>
-            </s-section>
-          </s-grid-item>
-        </s-grid>
-        <s-divider color="strong" />
-        <s-grid gridTemplateColumns="repeat(12, 1fr)" gap="base">
-          <s-grid-item gridColumn="span 3">
-            <s-section heading="Місце відправки">
-              <s-stack direction="block" gap="small">
-                <s-grid gridTemplateColumns="repeat(6, 1fr)">
-                  <s-grid-item gridColumn="span 6">
-                    <s-choice-list
-                      label="Тип місця відправки"
-                      name="shipping-type-choice-list"
-                      onChange={(e) => {
-                        const value = e.currentTarget.values[0] as ShippingType;
-                        setValue("shippingType", value, {
-                          shouldDirty: true,
-                        });
-                      }}
-                    >
-                      <s-choice
-                        value="Warehouse"
-                        defaultSelected={watchedShippingType === "Warehouse"}
-                      >
-                        Відділення
-                      </s-choice>
-                      <s-choice
-                        value="Door"
-                        defaultSelected={watchedShippingType === "Door"}
-                      >
-                        Адреса
-                      </s-choice>
-                    </s-choice-list>
-                  </s-grid-item>
-                </s-grid>
-              </s-stack>
-            </s-section>
-          </s-grid-item>
-          <s-grid-item gridColumn="span 9">
-            <s-section heading="Адреса відправки">
-              {watchedShippingType === "Door" ? (
-                <s-grid
-                  gridTemplateColumns="repeat(6, 1fr)"
-                  gridTemplateRows="3"
-                  gap="base"
-                >
-                  <s-grid-item gridColumn="span 3">
-                    <s-text-field label="Регіон" autocomplete="off" />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 3">
-                    <s-text-field label="Місто" required autocomplete="off" />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 3">
-                    <s-text-field label="Вулиця" required autocomplete="off" />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 3">
-                    <s-text-field
-                      label="Номер будинку"
+    <s-page heading={t("domestic.shipping.title")}>
+      <s-link slot="breadcrumb-actions" href="/app/settings">
+        {t("global:navigating.settings")}
+      </s-link>
+      <s-box paddingBlock="base">
+        <s-stack direction="block" gap="base">
+          <s-grid gridTemplateColumns="3fr 1fr" gap="base">
+            <s-grid-item>
+              <s-section
+                heading={t("domestic.shipping.section.personal_info.title")}
+              >
+                <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+                  <s-grid-item>
+                    <Autocomplete
+                      id="sender"
+                      label={t(
+                        "domestic.shipping.section.personal_info.sender",
+                      )}
+                      modalHeading="Відправник"
+                      placeholder="Обрати відправника"
+                      searchPlaceholder="Шукати відправника"
+                      selected={sender}
+                      onSelected={(value) => setValue("sender", value)}
+                      options={[
+                        { label: "ФОП В'ячеслав", value: "3213hjuifhi5higeir" },
+                        { label: "ФОП Станіслав", value: "654dfoert345dfsas" },
+                      ]}
+                      defaultOptions={[
+                        { label: "ФОП В'ячеслав", value: "3213hjuifhi5higeir" },
+                        { label: "ФОП Станіслав", value: "654dfoert345dfsas" },
+                      ]}
                       required
-                      autocomplete="off"
                     />
                   </s-grid-item>
-                  <s-grid-item gridColumn="span 3">
-                    <s-text-field
-                      label="Поштовий індекс"
-                      required
-                      autocomplete="off"
-                    />
-                  </s-grid-item>
-                </s-grid>
-              ) : (
-                <></>
-              )}
-            </s-section>
-          </s-grid-item>
-        </s-grid>
-        <s-divider color="strong" />
-        <s-grid
-          gap="large"
-          gridTemplateColumns={"repeat(12, 1fr)"}
-          gridTemplateRows="2"
-        >
-          <s-grid-item gridColumn="span 3">
-            <s-section heading="Відправник">
-              <s-stack direction="block" gap="base">
-                <s-choice-list
-                  label="Тип"
-                  name="shipper-type-choice-list"
-                  onChange={(e) => {
-                    const value = e.currentTarget.values[0] as ShipperType;
-                    setValue("shipperType", value, {
-                      shouldDirty: true,
-                    });
-                  }}
-                >
-                  <s-choice
-                    defaultSelected={watchedShipperType === "Legal entity"}
-                    value="Legal entity"
-                  >
-                    Юридична особа
-                  </s-choice>
-                  <s-choice
-                    defaultSelected={watchedShipperType === "Private person"}
-                    value="Private person"
-                  >
-                    Фізична особа
-                  </s-choice>
-                </s-choice-list>
-              </s-stack>
-            </s-section>
-          </s-grid-item>
-          {watchedShipperType === "Legal entity" ? (
-            <s-grid-item gridColumn="span 9">
-              <s-stack direction="block" gap="base">
-                <s-section heading="Особисті дані">
-                  <s-stack direction="block" gap="base">
-                    <s-text-field
-                      label="Назва компанії"
-                      required
-                      autocomplete="off"
-                    />
-                    <s-grid
-                      gridTemplateColumns="repeat(12, 1fr)"
-                      gridTemplateRows="2"
-                      gap="base"
-                    >
-                      <s-grid-item gridColumn="span 6">
-                        <s-text-field
-                          label="Номер клієнта"
-                          required
-                          autocomplete="off"
-                        />
-                      </s-grid-item>
-                      <s-grid-item gridColumn="span 6">
-                        <s-text-field
-                          label="Ідентифікаційний номер платника податків"
-                          required
-                          autocomplete="off"
-                        />
-                      </s-grid-item>
-                    </s-grid>
-                  </s-stack>
-                </s-section>
-                <s-section heading="Контактна особа">
-                  <s-grid
-                    gridTemplateColumns="repeat(12, 1fr)"
-                    gridTemplateRows="2"
-                    gap="base"
-                  >
-                    <s-grid-item gridColumn="span 6">
-                      <s-text-field label="Ім'я" required />
-                    </s-grid-item>
-                    <s-grid-item gridColumn="span 6">
-                      <s-text-field label="Прізвище" required />
-                    </s-grid-item>
-                    <s-grid-item gridColumn="span 6">
-                      <PhoneTextField
-                        label="Номер телефону"
-                        countryCode={"UA"}
-                      />
-                    </s-grid-item>
-                    <s-grid-item gridColumn="span 6">
-                      <s-email-field
-                        label="Електронна пошта"
-                        autocomplete="off"
-                      />
-                    </s-grid-item>
-                  </s-grid>
-                </s-section>
-              </s-stack>
-            </s-grid-item>
-          ) : (
-            <s-grid-item gridColumn="span 9">
-              <s-section heading="Особисті дані">
-                <s-grid
-                  gridTemplateColumns="repeat(12, 1fr)"
-                  gridTemplateRows="2"
-                  gap="base"
-                >
-                  <s-grid-item gridColumn="span 6">
-                    <s-text-field label="Ім'я" />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 6">
-                    <s-text-field label="Прізвище" />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 6">
-                    <PhoneTextField label="Номер телефону" countryCode={"UA"} />
-                  </s-grid-item>
-                  <s-grid-item gridColumn="span 6">
-                    <s-email-field
-                      label="Електронна пошта"
-                      autocomplete="off"
+                  <s-grid-item>
+                    <PhoneTextField
+                      label={t(
+                        "domestic.shipping.section.personal_info.phone_number",
+                      )}
+                      countryCode="UA"
                     />
                   </s-grid-item>
                 </s-grid>
               </s-section>
             </s-grid-item>
+          </s-grid>
+          <s-divider color="strong" />
+          <s-grid gridTemplateColumns="3fr 1fr" gap="base">
+            <s-grid-item gridRow="span 1">
+              <s-section
+                heading={t("domestic.shipping.section.packaging.title")}
+              >
+                <s-stack direction="block" gap="base">
+                  <s-grid gridTemplateColumns="repeat(14, 1fr)" gap="small-200">
+                    <s-grid-item gridColumn="span 12" gridRow="span 1">
+                      <s-switch
+                        label={t(
+                          "domestic.shipping.section.packaging.extended_packaging",
+                        )}
+                        checked={packingType === "extended"}
+                        value={packingType}
+                        onChange={(e) => {
+                          if (packingType === "default") {
+                            setValue("packingType", "extended", {
+                              shouldDirty: true,
+                            });
+                          } else {
+                            setValue("packingType", "default", {
+                              shouldDirty: true,
+                            });
+                          }
+                        }}
+                      />
+                    </s-grid-item>
+                    <s-grid-item gridColumn="span 8">
+                      <s-grid
+                        gridTemplateColumns="repeat(14, 1fr)"
+                        gap="small-300"
+                      >
+                        <>
+                          <s-grid-item gridColumn="span 9">
+                            <s-stack direction="block" gap="base">
+                              <s-clickable
+                                border="base"
+                                padding="small-300"
+                                background="base"
+                                borderColor="strong"
+                                borderRadius="small"
+                                commandFor={
+                                  packingType === "default"
+                                    ? "uniform-package-modal"
+                                    : "extended-packaging-modal"
+                                }
+                              >
+                                <s-stack
+                                  direction="inline"
+                                  justifyContent="space-between"
+                                >
+                                  <s-text>
+                                    {packingType === "default"
+                                      ? uniformPackage?.description ||
+                                        t(
+                                          "domestic.shipping.section.packaging.select_uniform_packaging",
+                                        )
+                                      : t(
+                                          "domestic.shipping.section.packaging.configure_packaging",
+                                        )}
+                                  </s-text>
+                                  <s-icon type="chevron-down" />
+                                </s-stack>
+                              </s-clickable>
+                            </s-stack>
+                          </s-grid-item>
+                          <s-stack direction="inline" alignContent="safe end">
+                            <s-grid-item gridColumn="span 2">
+                              <s-box paddingBlockEnd="small-400">
+                                <s-button
+                                  icon="plus"
+                                  commandFor="create-box-modal"
+                                />
+                              </s-box>
+                            </s-grid-item>
+                          </s-stack>
+                        </>
+                      </s-grid>
+                    </s-grid-item>
+                  </s-grid>
+                  <s-box inlineSize="280px">
+                    <s-text-area
+                      label={t(
+                        "domestic.shipping.section.packaging.default_shipping_description",
+                      )}
+                      autocomplete="off"
+                    />
+                  </s-box>
+                  <s-switch
+                    label={t(
+                      "domestic.shipping.section.packaging.add_sku_to_shipping.title",
+                    )}
+                    details={t(
+                      "domestic.shipping.section.packaging.add_sku_to_shipping.description",
+                    )}
+                  />
+                </s-stack>
+              </s-section>
+            </s-grid-item>
+            <s-grid-item gridRow="span 2">
+              <s-section
+                heading={t("domestic.shipping.section.shipment.title")}
+              >
+                <s-stack direction="inline" gap="base">
+                  <s-choice-list
+                    label={t("domestic.shipping.section.shipment.type.title")}
+                    name="shipment-type-choice-list"
+                    onChange={(e) => {
+                      const value = e.currentTarget.values[0] as ShipmentType;
+                      setValue("shipmentType", value, {
+                        shouldDirty: true,
+                      });
+                    }}
+                  >
+                    <s-choice
+                      value="Parcel"
+                      defaultSelected={shipmentType === "Parcel"}
+                    >
+                      {t("domestic.shipping.section.shipment.type.parcel")}
+                    </s-choice>
+                    <s-choice
+                      value="Cargo"
+                      defaultSelected={shipmentType === "Cargo"}
+                    >
+                      {t("domestic.shipping.section.shipment.type.cargo")}
+                    </s-choice>
+                    <s-choice
+                      value="Documents"
+                      defaultSelected={shipmentType === "Documents"}
+                    >
+                      {t("domestic.shipping.section.shipment.type.documents")}
+                    </s-choice>
+                    <s-choice
+                      value="TiresWheels"
+                      defaultSelected={shipmentType === "TiresWheels"}
+                    >
+                      {t(
+                        "domestic.shipping.section.shipment.type.wheels_tires",
+                      )}
+                    </s-choice>
+                    <s-choice
+                      value="Pallet"
+                      defaultSelected={shipmentType === "Pallet"}
+                    >
+                      {t("domestic.shipping.section.shipment.type.palets")}
+                    </s-choice>
+                  </s-choice-list>
+                  <s-stack direction="block" gap="base">
+                    <s-choice-list
+                      label={t(
+                        "domestic.shipping.section.shipment.delivery_payment_type.title",
+                      )}
+                      name="delivery-payment-type-choice-list"
+                      onChange={(e) => {
+                        const value = e.currentTarget
+                          .values[0] as DeliveryPaymentType;
+                        setValue("deliveryPaymentType", value, {
+                          shouldDirty: true,
+                        });
+                      }}
+                    >
+                      <s-choice
+                        value="Cash"
+                        defaultSelected={deliveryPaymentType === "Cash"}
+                      >
+                        {t(
+                          "domestic.shipping.section.shipment.delivery_payment_type.cash",
+                        )}
+                      </s-choice>
+                      <s-choice
+                        value="Cashless"
+                        defaultSelected={deliveryPaymentType === "Cashless"}
+                      >
+                        {t(
+                          "domestic.shipping.section.shipment.delivery_payment_type.cashless",
+                        )}
+                      </s-choice>
+                    </s-choice-list>
+                    <s-choice-list
+                      label={t(
+                        "domestic.shipping.section.shipment.delivery_payer.title",
+                      )}
+                      name="delivery-payment-type-choice-list"
+                      onChange={(e) => {
+                        const value = e.currentTarget
+                          .values[0] as DeliveryPaymentType;
+                        setValue("deliveryPaymentType", value, {
+                          shouldDirty: true,
+                        });
+                      }}
+                    >
+                      <s-choice
+                        value="Sender"
+                        defaultSelected={deliveryPaymentType === "Cash"}
+                      >
+                        {t(
+                          "domestic.shipping.section.shipment.delivery_payer.sender",
+                        )}
+                      </s-choice>
+                      <s-choice
+                        value="Recipient"
+                        defaultSelected={deliveryPaymentType === "Cashless"}
+                      >
+                        {t(
+                          "domestic.shipping.section.shipment.delivery_payer.recipient",
+                        )}
+                      </s-choice>
+                      <s-choice
+                        value="ThirdPerson"
+                        defaultSelected={deliveryPaymentType === "Cashless"}
+                      >
+                        {t(
+                          "domestic.shipping.section.shipment.delivery_payer.third_person",
+                        )}
+                      </s-choice>
+                    </s-choice-list>
+                  </s-stack>
+                </s-stack>
+              </s-section>
+            </s-grid-item>
+            <s-grid-item gridRow="span 1">
+              <s-section
+                heading={t(
+                  "domestic.shipping.section.optional_additional_services.title",
+                )}
+                padding="base"
+              >
+                <s-stack direction="block" gap="small-300">
+                  <s-stack direction="inline" gap="base">
+                    <s-checkbox
+                      label={t(
+                        "domestic.shipping.section.optional_additional_services.cash_on_delivery",
+                      )}
+                      checked={additionalService === "PaymentControl"}
+                      value={additionalService}
+                      onChange={(e) => {
+                        if (additionalService === "") {
+                          setValue("additionalService", "PaymentControl", {
+                            shouldDirty: true,
+                          });
+                        } else if (additionalService !== "PaymentControl") {
+                          setValue("additionalService", "PaymentControl", {
+                            shouldDirty: true,
+                          });
+                        } else {
+                          setValue("additionalService", "", {
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
+                    />
+                    <s-checkbox
+                      label={t(
+                        "domestic.shipping.section.optional_additional_services.return_delivery",
+                      )}
+                      checked={additionalService === "MoneyTransfer"}
+                      value={additionalService}
+                      onChange={(e) => {
+                        if (additionalService === "") {
+                          setValue("additionalService", "MoneyTransfer", {
+                            shouldDirty: true,
+                          });
+                        } else if (additionalService !== "MoneyTransfer") {
+                          setValue("additionalService", "MoneyTransfer", {
+                            shouldDirty: true,
+                          });
+                        } else {
+                          setValue("additionalService", "", {
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
+                    />
+                    <s-checkbox
+                      label={t(
+                        "domestic.shipping.section.optional_additional_services.declared_price.title",
+                      )}
+                      checked={additionalService === "DeclaredPrice"}
+                      value={additionalService}
+                      onChange={(e) => {
+                        if (additionalService === "") {
+                          setValue("additionalService", "DeclaredPrice", {
+                            shouldDirty: true,
+                          });
+                        } else if (additionalService !== "DeclaredPrice") {
+                          setValue("additionalService", "DeclaredPrice", {
+                            shouldDirty: true,
+                          });
+                        } else {
+                          setValue("additionalService", "", {
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
+                    />
+                  </s-stack>
+                  {additionalService === "MoneyTransfer" ? (
+                    <s-stack direction="block" gap="small-500">
+                      <s-text>
+                        {t(
+                          "domestic.shipping.section.optional_additional_services.comission_pays.title",
+                        )}
+                      </s-text>
+                      <s-stack
+                        direction="inline"
+                        gap="small-200"
+                        alignItems="center"
+                      >
+                        <s-text>
+                          {t(
+                            "domestic.shipping.section.optional_additional_services.comission_pays.recipient",
+                          )}
+                        </s-text>
+                        <s-switch
+                          label={t(
+                            "domestic.shipping.section.optional_additional_services.comission_pays.sender",
+                          )}
+                          onChange={() => {
+                            if (commisionPayer === "Sender") {
+                              setValue("comissionPayer", "Recipient", {
+                                shouldDirty: true,
+                              });
+                            } else {
+                              setValue("comissionPayer", "Sender", {
+                                shouldDirty: true,
+                              });
+                            }
+                          }}
+                        />
+                      </s-stack>
+                    </s-stack>
+                  ) : (
+                    additionalService === "DeclaredPrice" && (
+                      <s-box inlineSize="200px">
+                        <s-money-field
+                          label={t(
+                            "domestic.shipping.section.optional_additional_services.declared_price.price",
+                          )}
+                          value={declaredPriceAmount}
+                          onChange={(e) =>
+                            setValue(
+                              "declaredPriceAmount",
+                              e.currentTarget.value,
+                              { shouldDirty: true },
+                            )
+                          }
+                          autocomplete="off"
+                        ></s-money-field>
+                      </s-box>
+                    )
+                  )}
+                </s-stack>
+              </s-section>
+            </s-grid-item>
+          </s-grid>
+          <s-divider color="strong" />
+          <s-grid gridTemplateColumns="3fr 1fr" gap="base">
+            <s-grid-item>
+              <s-section
+                heading={
+                  shippingType === "Door"
+                    ? t("domestic.shipping.section.pickup_address.title")
+                    : t("domestic.shipping.section.dispatch_address.title")
+                }
+              >
+                {shippingType === "Door" ? (
+                  <s-stack direction="block" gap="base">
+                    <Autocomplete
+                      id="settlement"
+                      label={t(
+                        "domestic.shipping.section.pickup_address.settlement",
+                      )}
+                      modalHeading={t(
+                        "domestic.shipping.component.settlement.modal.title",
+                      )}
+                      placeholder={t(
+                        "domestic.shipping.component.settlement.clickable.placeholder",
+                      )}
+                      searchPlaceholder={t(
+                        "domestic.shipping.component.settlement.modal.search",
+                      )}
+                      selected={settlement}
+                      onSelected={(value) => setValue("settlement", value)}
+                      options={[
+                        { label: "Київ", value: "123fkdpsfsd" },
+                        { label: "Харків", value: "123fkdpsfss" },
+                        { label: "Одеса", value: "123fkdpsfsg" },
+                        { label: "Львів", value: "123fkdpsf23" },
+                      ]}
+                      defaultOptions={[
+                        { label: "Київ", value: "123fkdpsfsd" },
+                        { label: "Харків", value: "123fkdpsfss" },
+                        { label: "Одеса", value: "123fkdpsfsg" },
+                        { label: "Львів", value: "123fkdpsf23" },
+                      ]}
+                      shortcuts={[
+                        { label: "Київ", value: "49gerjgl32" },
+                        { label: "Харків", value: "41gerjgl32" },
+                        { label: "Одеса", value: "44gerjgl32" },
+                        { label: "Львів", value: "47gerjgl32" },
+                      ]}
+                      required
+                    />
+                    <Autocomplete
+                      id="street"
+                      label={t(
+                        "domestic.shipping.section.pickup_address.street",
+                      )}
+                      modalHeading={t(
+                        "domestic.shipping.component.street.modal.title",
+                      )}
+                      placeholder={t(
+                        "domestic.shipping.component.street.clickable.placeholder",
+                      )}
+                      searchPlaceholder={t(
+                        "domestic.shipping.component.street.modal.search",
+                      )}
+                      options={[
+                        { label: "Академіка Вільямса", value: "312gregeiro" },
+                        { label: "Адмірала Макарова", value: "65fvdkgwe1" },
+                        { label: "Квіткова", value: "69021fsdlkng" },
+                      ]}
+                      defaultOptions={[
+                        { label: "Академіка Вільямса", value: "312gregeiro" },
+                        { label: "Адмірала Макарова", value: "65fvdkgwe1" },
+                        { label: "Квіткова", value: "69021fsdlkng" },
+                      ]}
+                      selected={street}
+                      onSelected={(value) => setValue("street", value)}
+                      required
+                    />
+                    <s-text-field
+                      label={t(
+                        "domestic.shipping.section.pickup_address.building",
+                      )}
+                      required
+                      autocomplete="off"
+                    />
+                    <s-text-field
+                      label={t(
+                        "domestic.shipping.section.pickup_address.apartment",
+                      )}
+                      autocomplete="off"
+                    />
+                  </s-stack>
+                ) : (
+                  <s-stack direction="block" gap="base">
+                    <Autocomplete
+                      id="settlement"
+                      label={t(
+                        "domestic.shipping.section.dispatch_address.settlement",
+                      )}
+                      modalHeading={t(
+                        "domestic.shipping.component.settlement.modal.title",
+                      )}
+                      placeholder={t(
+                        "domestic.shipping.component.settlement.clickable.placeholder",
+                      )}
+                      searchPlaceholder={t(
+                        "domestic.shipping.component.settlement.modal.search",
+                      )}
+                      selected={settlement}
+                      onSelected={(value) => setValue("settlement", value)}
+                      options={[
+                        { label: "Київ", value: "49gerjgl32" },
+                        { label: "Харків", value: "41gerjgl32" },
+                        { label: "Одеса", value: "44gerjgl32" },
+                        { label: "Львів", value: "47gerjgl32" },
+                      ]}
+                      defaultOptions={[
+                        { label: "Київ", value: "49gerjgl32" },
+                        { label: "Харків", value: "41gerjgl32" },
+                        { label: "Одеса", value: "44gerjgl32" },
+                        { label: "Львів", value: "47gerjgl32" },
+                      ]}
+                      shortcuts={[
+                        { label: "Київ", value: "49gerjgl32" },
+                        { label: "Харків", value: "41gerjgl32" },
+                        { label: "Одеса", value: "44gerjgl32" },
+                        { label: "Львів", value: "47gerjgl32" },
+                      ]}
+                      required
+                    />
+                    <Autocomplete
+                      id="warehouse"
+                      label={t(
+                        "domestic.shipping.section.dispatch_address.warehouse",
+                      )}
+                      modalHeading={t(
+                        "domestic.shipping.component.warehouse.modal.title",
+                      )}
+                      placeholder={t(
+                        "domestic.shipping.component.warehouse.clickable.placeholder",
+                      )}
+                      searchPlaceholder={t(
+                        "domestic.shipping.component.warehouse.modal.search",
+                      )}
+                      selected={warehouse}
+                      onSelected={(value) => setValue("warehouse", value)}
+                      options={[
+                        { label: "Київ №1", value: "765gfehter" },
+                        { label: "Київ №2", value: "725gfehter" },
+                        { label: "Київ №3", value: "745gfehter" },
+                        { label: "Київ №4", value: "775gfehter" },
+                      ]}
+                      defaultOptions={[
+                        { label: "Київ №1", value: "765gfehter" },
+                        { label: "Київ №2", value: "725gfehter" },
+                        { label: "Київ №3", value: "745gfehter" },
+                        { label: "Київ №4", value: "775gfehter" },
+                      ]}
+                      required
+                    />
+                  </s-stack>
+                )}
+              </s-section>
+            </s-grid-item>
+            <s-grid-item>
+              <s-section
+                heading={t("domestic.shipping.section.pickup_location.title")}
+              >
+                <s-stack direction="block" gap="small">
+                  <s-grid gridTemplateColumns="repeat(6, 1fr)">
+                    <s-grid-item gridColumn="span 6">
+                      <s-choice-list
+                        label={t(
+                          "domestic.shipping.section.pickup_location.pickup_type.title",
+                        )}
+                        name="shipping-type-choice-list"
+                        onChange={(e) => {
+                          const value = e.currentTarget
+                            .values[0] as ShippingType;
+                          setValue("shippingType", value, {
+                            shouldDirty: true,
+                          });
+                          setValue;
+                        }}
+                      >
+                        <s-choice
+                          value="Warehouse"
+                          defaultSelected={shippingType === "Warehouse"}
+                        >
+                          {t(
+                            "domestic.shipping.section.pickup_location.pickup_type.warehouse",
+                          )}
+                        </s-choice>
+                        <s-choice
+                          value="Door"
+                          defaultSelected={shippingType === "Door"}
+                        >
+                          {t(
+                            "domestic.shipping.section.pickup_location.pickup_type.address",
+                          )}
+                        </s-choice>
+                      </s-choice-list>
+                    </s-grid-item>
+                  </s-grid>
+                </s-stack>
+              </s-section>
+            </s-grid-item>
+          </s-grid>
+        </s-stack>
+        <UniformPackageModal
+          heading={t("domestic.shipping.component.uniform_package.modal.title")}
+          placeholder={t(
+            "domestic.shipping.component.uniform_package.modal.search",
           )}
-        </s-grid>
-      </s-stack>
-      <BoxModal />
-      <ExtendedBoxModal />
-      <CreateBoxModal />
-      <SaveBar id="shipping-settings-save-bar">
-        <button
-          variant="primary"
-          // onClick={handleSaveSettings}
-          // loading={
-          //   fetcher.state === "submitting" || fetcher.state === "loading"
-          //     ? ""
-          //     : undefined
-          // }
+          selected={uniformPackage}
+          onSelected={(value) => setValue("uniformPackage", value)}
+          boxes={[
+            {
+              id: "8f49720a-cd66-442f-9b85-9dcce7e34f8b",
+              description: "Коробка 4 кг пласка",
+              length: "53.5",
+              width: "38",
+              height: "7.5",
+              volumetricWeight: "4",
+              external: false,
+            },
+            {
+              id: "988f6991-1bd2-11e4-acce-0050568002cf",
+              description: "Коробка (4кг) для ноутбука",
+              length: "53.5",
+              width: "38",
+              height: "7.5",
+              volumetricWeight: "4",
+              external: true,
+            },
+          ]}
         />
-        <button
-          onClick={() => reset()}
-          // loading={
-          //   fetcher.state === "submitting" || fetcher.state === "loading"
-          //     ? ""
-          //     : undefined
-          // }
+        <ExtendedPackagingModal
+          boxes={[
+            {
+              id: "8f49720a-cd66-442f-9b85-9dcce7e34f8b",
+              description: "Коробка 4 кг пласка",
+              length: "53.5",
+              width: "38",
+              height: "7.5",
+              volumetricWeight: "4",
+              external: false,
+            },
+            {
+              id: "988f6991-1bd2-11e4-acce-0050568002cf",
+              description: "Коробка (4кг) для ноутбука",
+              length: "53.5",
+              width: "38",
+              height: "7.5",
+              volumetricWeight: "4",
+              external: true,
+            },
+          ]}
+          onSelected={() => {}}
+          selected={null}
         />
-      </SaveBar>
+        <CreateBoxModal />
+        <SaveBar id="shipping-settings-save-bar">
+          <button
+            variant="primary"
+            // onClick={handleSaveSettings}
+            // loading={
+            //   fetcher.state === "submitting" || fetcher.state === "loading"
+            //     ? ""
+            //     : undefined
+            // }
+          />
+          <button
+            onClick={() => reset()}
+            // loading={
+            //   fetcher.state === "submitting" || fetcher.state === "loading"
+            //     ? ""
+            //     : undefined
+            // }
+          />
+        </SaveBar>
+      </s-box>
     </s-page>
   );
 }

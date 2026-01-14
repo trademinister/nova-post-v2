@@ -24,9 +24,9 @@ export const i18next = new RemixI18Next({
 
 // Type-safety disabled to allow any translation keys without TypeScript errors
 // Commented out to disable strict typing for translations
-// declare module "i18next" {
-//   interface CustomTypeOptions {
-//     defaultNS: "translation";
-//     resources: typeof resources.ua;
-//   }
-// }
+declare module "i18next" {
+  interface CustomTypeOptions {
+    defaultNS: "translation";
+    resources: typeof resources.ua;
+  }
+}

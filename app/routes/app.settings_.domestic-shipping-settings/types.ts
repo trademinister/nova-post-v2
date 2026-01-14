@@ -13,6 +13,16 @@ const COUNTRY_PHONE_MAP = countryPhones satisfies CountryPhoneMap;
 
 export type CountryCode = keyof typeof COUNTRY_PHONE_MAP;
 
+export type Box = {
+  id: string;
+  description: string;
+  length: string;
+  width: string;
+  height: string;
+  volumetricWeight: string;
+  external: boolean;
+};
+
 export type ShipperType = "Legal entity" | "Private person";
 
 export type ShippingType = "Door" | "Warehouse";
@@ -34,6 +44,7 @@ export type ComissionPayerType = "Sender" | "Recipient";
 export type FormValues = {
   shipmentType: ShipmentType;
   packingType: PackingType;
+  uniformPackage: Box | null;
   deliveryPayerType: DeliveryPayerType;
   deliveryPaymentType: DeliveryPaymentType;
   additionalService: AdditionalServiceType;
@@ -41,4 +52,8 @@ export type FormValues = {
   declaredPriceAmount: string;
   shipperType: ShipperType;
   shippingType: ShippingType;
+  sender: { label: string; value: string } | null;
+  settlement: { label: string; value: string } | null;
+  street: { label: string; value: string } | null;
+  warehouse: { label: string; value: string } | null;
 };

@@ -1,0 +1,47 @@
+/* Загальна обгортка таблиці */
+.extended-packaging-table {
+  max-width: 100%;
+}
+
+/* 1) Назва товару */
+.extended-packaging-table .product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.extended-packaging-table .product-name {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 2) Варіанти */
+.extended-packaging-table .variants-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 3) Ємність: робимо “вузькою” саме свою обгортку, а не колонку web-component'а */
+.extended-packaging-table .capacity-header,
+.extended-packaging-table .capacity-cell {
+  width: 80px; /* регулюй тут */
+  max-width: 80px;
+}
+
+/* щоб заголовок виглядав нормально */
+.extended-packaging-table .capacity-header {
+  white-space: nowrap;
+}
+
+/* контент в клітинці */
+.extended-packaging-table .capacity-cell {
+  display: flex;
+  justify-content: center;
+}
+
+/* якщо сам number-field завеликий — обмежуємо в межах нашої обгортки */
+.extended-packaging-table .capacity-cell s-number-field {
+  inline-size: 100%;
+  max-inline-size: 80px;
+}
