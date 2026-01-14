@@ -111,7 +111,7 @@ model FFPaymentMethods {
 model FFLogs {
   id        String   @id @default(uuid())
   orderId   String
-  message   String
+  message   Json
   status    String
   created   DateTime @default(now())
   sessionId String
