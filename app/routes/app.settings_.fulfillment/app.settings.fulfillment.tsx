@@ -116,7 +116,7 @@ export default function NovaPoshtaFfSettings() {
         mainReset(mainGetValues());
       }
     }
-  }, [fetcherSaveSettings, mainReset, mainGetValues]);                                                               
+  }, [fetcherSaveSettings, mainReset, mainGetValues]);
 
   useEffect(() => {
     if (fetcherResetSettings && fetcherResetSettings.data?.success) {
@@ -398,44 +398,48 @@ export default function NovaPoshtaFfSettings() {
                 });
               }}
             />
-            <s-stack gap="small-200">
-              <s-heading>{t("settings.order_risk_levels.title")}</s-heading>
-              {["LOW", "MEDIUM", "HIGH"].map((level) => {
-                const getTone = (
-                  level: string,
-                ): "success" | "warning" | "critical" | "neutral" => {
-                  if (level === "LOW") return "success";
-                  if (level === "MEDIUM") return "warning";
-                  if (level === "HIGH") return "critical";
-                  return "neutral";
-                };
+            {mainWatch("orderRiskAssissemnt") && (
+              <s-stack gap="small-200">
+                <s-heading>{t("settings.order_risk_levels.title")}</s-heading>
+                {["LOW", "MEDIUM", "HIGH"].map((level) => {
+                  const getTone = (
+                    level: string,
+                  ): "success" | "warning" | "critical" | "neutral" => {
+                    if (level === "LOW") return "success";
+                    if (level === "MEDIUM") return "warning";
+                    if (level === "HIGH") return "critical";
+                    return "neutral";
+                  };
 
-                return (
-                  <s-stack
-                    key={level}
-                    direction="inline"
-                    gap="small-200"
-                    alignItems="center"
-                  >
-                    <s-checkbox
-                      id="orderRiskLevels"
-                      checked={mainWatch("orderRiskLevels")?.includes(level)}
-                      onChange={() => {
-                        handleChooseOrderRiskLevel(level);
-                      }}
-                    />
-                    <div
-                      className="cursor-pointer"
-                      onClick={() => handleChooseOrderRiskLevel(level)}
+                  return (
+                    <s-stack
+                      key={level}
+                      direction="inline"
+                      gap="small-200"
+                      alignItems="center"
                     >
-                      <s-text tone={getTone(level)}>
-                        {t(`settings.order_risk_levels.${level.toLowerCase()}`)}
-                      </s-text>
-                    </div>
-                  </s-stack>
-                );
-              })}
-            </s-stack>
+                      <s-checkbox
+                        id="orderRiskLevels"
+                        checked={mainWatch("orderRiskLevels")?.includes(level)}
+                        onChange={() => {
+                          handleChooseOrderRiskLevel(level);
+                        }}
+                      />
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => handleChooseOrderRiskLevel(level)}
+                      >
+                        <s-text tone={getTone(level)}>
+                          {t(
+                            `settings.order_risk_levels.${level.toLowerCase()}`,
+                          )}
+                        </s-text>
+                      </div>
+                    </s-stack>
+                  );
+                })}
+              </s-stack>
+            )}
           </s-stack>
         </s-section>
         <s-section heading={t("settings.heading.filtered_by_tags")}>
@@ -455,7 +459,7 @@ export default function NovaPoshtaFfSettings() {
                 );
               }}
             />
-            <s-box
+            {mainWatch("filteredByTagsIsActive") && <s-box
               borderRadius="base"
               borderStyle="solid"
               border="base"
@@ -593,7 +597,7 @@ export default function NovaPoshtaFfSettings() {
                     ))}
                 </s-table-body>
               </s-table>
-            </s-box>
+            </s-box>}
           </s-stack>
         </s-section>
         <s-section heading={t("settings.heading.process_payment_method")}>
@@ -620,7 +624,7 @@ export default function NovaPoshtaFfSettings() {
                 }}
               />
             </s-stack>
-            <s-box
+            {mainWatch("processPaymentgMethod") && <s-box
               borderRadius="base"
               borderStyle="solid"
               border="base"
@@ -725,7 +729,7 @@ export default function NovaPoshtaFfSettings() {
                     ))}
                 </s-table-body>
               </s-table>
-            </s-box>
+            </s-box>}
           </s-stack>
         </s-section>
         <s-section heading={t("settings.heading.fulfillment_settings")}>
@@ -1348,8 +1352,12 @@ export default function NovaPoshtaFfSettings() {
               justifyContent="space-between"
             >
               <s-text>{t("ff_status.curent_organization")}:</s-text>
-              {ffSettings?.npOrganization && (
+              {ffSettings?.npOrganization ? (
                 <s-chip>{ffSettings.npOrganization}</s-chip>
+              ) : (
+                <s-badge tone="warning">
+                  {t("ff_status.no_organization")}
+                </s-badge>
               )}
             </s-stack>
           </s-list-item>

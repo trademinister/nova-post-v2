@@ -15,7 +15,7 @@ export default {
     },
     nova_poshta: {
       domestic_shipping_settings: {
-        title: "Domestic",
+        title: "Domestic", // по украине доставка
         links: {
           settings: "Settings",
           methods_settings: "Delivery methods",

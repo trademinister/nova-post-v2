@@ -5,7 +5,7 @@ export default {
       order_risk_assissemnt: "Order Risk Assessment",
       filtered_by_tags: "Filter by Tags",
       process_payment_method: "Payment Methods",
-      fulfillment_settings: "Fulfillment Settings",
+      fulfillment_settings: "Process orders",
       tools: "Tools",
     },
     ff_enable: "Enable Auto Fulfillment",
@@ -97,6 +97,7 @@ export default {
     enabled: "Enabled",
     disabled: "Disabled",
     curent_organization: "Current Organization",
+    no_organization: "No Organization",
     toast: {
       success: {
         login_ff_success: "Successfully logged in to Nova Poshta",
@@ -117,10 +118,10 @@ export default {
     },
   },
   auth: {
-    form_title: "Nova Poshta Authentication",
-    np_login_label: "Nova Poshta Login",
+    form_title: "Nova Poshta Authorization",
+    np_login_label: "Login",
     np_login_required: "Login is required",
-    np_password_label: "Nova Poshta Password",
+    np_password_label: "Password",
     np_password_required: "Password is required",
     np_organization_label: "Organization Name",
     np_organization_tooltip:
@@ -128,6 +129,6 @@ export default {
     np_organization_required: "Organization name is required",
     additional_organization_key_label: "Additional Organization Key",
     logout: "Logout",
-    submit_button: "Login",
+    submit_button: "Authorize",
   },
 };
