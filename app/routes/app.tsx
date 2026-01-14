@@ -37,6 +37,7 @@ export default function App() {
       <s-app-nav>
         <s-link href="/app">{t("navigating.home")}</s-link>
         <s-link href="/app/orders">{t("navigating.orders")}</s-link>
+        <s-link href="/app/logs">{t("navigating.logs")}</s-link>
         <s-link href="/app/settings">{t("navigating.settings")}</s-link>
         <s-link href="/app/plans">{t("navigating.plans")}</s-link>
       </s-app-nav>
